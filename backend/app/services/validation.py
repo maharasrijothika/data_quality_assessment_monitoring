@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 
 SUPPORTED_EXTENSIONS = {
@@ -14,20 +14,41 @@ MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 def validate_filename(filename: str) -> None:
     """
-    Validate that the uploaded filename is safe and has a supported extension.
+    Validate that an uploaded filename or relative folder path is safe
+    and has a supported extension.
+
+    Folder uploads may provide relative paths such as:
+        products/flipkart_laptops.csv
+
+    Path traversal and absolute paths are rejected.
     """
     if not filename:
         raise ValueError("Filename is required.")
 
-    path = Path(filename)
+    # Normalize browser-provided Windows separators to POSIX separators.
+    normalized = filename.replace("\\", "/")
 
-    if path.name != filename:
+    path = PurePosixPath(normalized)
+
+    # Reject absolute paths.
+    if path.is_absolute():
         raise ValueError("Invalid filename.")
 
-    if filename in {".", ".."}:
+    # Reject path traversal.
+    if ".." in path.parts:
         raise ValueError("Invalid filename.")
 
-    extension = path.suffix.lower()
+    # Reject empty/current-directory names.
+    if normalized in {".", "..", ""}:
+        raise ValueError("Invalid filename.")
+
+    # The actual file component must exist.
+    basename = path.name
+
+    if not basename or basename in {".", ".."}:
+        raise ValueError("Invalid filename.")
+
+    extension = Path(basename).suffix.lower()
 
     if extension not in SUPPORTED_EXTENSIONS:
         raise ValueError(

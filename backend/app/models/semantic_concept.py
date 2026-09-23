@@ -6,36 +6,43 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 
 
-class Dataset(Base):
-    __tablename__ = "datasets"
+class SemanticConcept(Base):
+    __tablename__ = "semantic_concepts"
 
-    dataset_id: Mapped[int] = mapped_column(
+    concept_id: Mapped[int] = mapped_column(
         Integer,
         primary_key=True,
         index=True,
     )
 
-    dataset_name: Mapped[str] = mapped_column(
+    concept_name: Mapped[str] = mapped_column(
         String(255),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
+    category: Mapped[str] = mapped_column(
+        String(100),
         nullable=False,
     )
 
-    source_system: Mapped[str | None] = mapped_column(
-        String(100),
+    description: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+    aliases: Mapped[str | None] = mapped_column(
+        Text,
         nullable=True,
     )
 
-    domain: Mapped[str | None] = mapped_column(
-        String(100),
+    expected_data_types: Mapped[str | None] = mapped_column(
+        Text,
         nullable=True,
     )
 
-    update_cadence: Mapped[str | None] = mapped_column(
-        String(50),
-        nullable=True,
-    )
-
-    description: Mapped[str | None] = mapped_column(
+    profile_expectations: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )

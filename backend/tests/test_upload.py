@@ -786,4 +786,238 @@ def test_upload_rejects_missing_dataset_name(
         assert not any(
             isolated_storage.rglob("*")
         )
+def test_analyze_upload_all_new_files(
+    client,
+    db,
+    isolated_storage,
+):
+    """
+    An upload containing only new files should return
+    all_new without creating any dataset or version.
+    """
 
+    response = client.post(
+        "/datasets/upload/analyze",
+        files={
+            "files": (
+                "new_customers.csv",
+                io.BytesIO(
+                    b"customer_id,name\n"
+                    b"1,Alice\n"
+                    b"2,Bob\n"
+                ),
+                "text/csv",
+            )
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["status"] == "all_new"
+    assert data["total_files"] == 1
+    assert data["new_count"] == 1
+    assert data["duplicate_count"] == 0
+
+    assert len(data["new_files"]) == 1
+    assert data["new_files"][0]["filename"] == "new_customers.csv"
+
+    assert data["duplicate_files"] == []
+
+    # Analyze must not register anything.
+    assert db.query(Dataset).count() == 0
+    assert db.query(DatasetVersion).count() == 0
+    assert db.query(FileMetadata).count() == 0
+
+
+def test_analyze_upload_all_duplicates(
+    client,
+    db,
+    isolated_storage,
+):
+    """
+    An upload containing only duplicate files should return
+    all_duplicates without creating another dataset/version.
+    """
+
+    content = (
+        "customer_id,name\n"
+        "1,Alice\n"
+        "2,Bob\n"
+    )
+
+    first_response = upload_file(
+        client,
+        filename="customers.csv",
+        content=content,
+    )
+
+    assert first_response.status_code == 200
+
+    response = client.post(
+        "/datasets/upload/analyze",
+        files={
+            "files": (
+                "customers_copy.csv",
+                io.BytesIO(
+                    content.encode("utf-8")
+                ),
+                "text/csv",
+            )
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["status"] == "all_duplicates"
+    assert data["total_files"] == 1
+    assert data["new_count"] == 0
+    assert data["duplicate_count"] == 1
+
+    assert data["new_files"] == []
+    assert len(data["duplicate_files"]) == 1
+
+    duplicate = data["duplicate_files"][0]
+
+    assert duplicate["filename"] == "customers_copy.csv"
+
+    assert len(duplicate["existing_files"]) == 1
+
+    existing = duplicate["existing_files"][0]
+
+    assert existing["original_filename"] == "customers.csv"
+    assert existing["version_id"] == 1
+
+    # Analyze must not create another dataset/version.
+    assert db.query(Dataset).count() == 1
+    assert db.query(DatasetVersion).count() == 1
+
+
+def test_analyze_upload_mixed_new_and_duplicate_files(
+    client,
+    db,
+    isolated_storage,
+):
+    """
+    A mixed upload should return review_required and clearly
+    separate duplicate files from new files.
+    """
+
+    duplicate_content = (
+        "customer_id,name\n"
+        "1,Alice\n"
+        "2,Bob\n"
+    )
+
+    new_content = (
+        "order_id,customer_id,total\n"
+        "100,1,500\n"
+        "101,2,700\n"
+    )
+
+    # Register the file that will later be detected as duplicate.
+    first_response = upload_file(
+        client,
+        filename="customers.csv",
+        content=duplicate_content,
+    )
+
+    assert first_response.status_code == 200
+
+    response = client.post(
+        "/datasets/upload/analyze",
+        files=[
+            (
+                "files",
+                (
+                    "customers_copy.csv",
+                    io.BytesIO(
+                        duplicate_content.encode("utf-8")
+                    ),
+                    "text/csv",
+                ),
+            ),
+            (
+                "files",
+                (
+                    "orders.csv",
+                    io.BytesIO(
+                        new_content.encode("utf-8")
+                    ),
+                    "text/csv",
+                ),
+            ),
+        ],
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["status"] == "review_required"
+    assert data["total_files"] == 2
+    assert data["duplicate_count"] == 1
+    assert data["new_count"] == 1
+
+    assert len(data["duplicate_files"]) == 1
+    assert len(data["new_files"]) == 1
+
+    duplicate = data["duplicate_files"][0]
+
+    assert duplicate["filename"] == "customers_copy.csv"
+    assert len(duplicate["existing_files"]) == 1
+    assert (
+        duplicate["existing_files"][0]["original_filename"]
+        == "customers.csv"
+    )
+
+    new_file = data["new_files"][0]
+
+    assert new_file["filename"] == "orders.csv"
+    assert new_file["content_fingerprint"]
+
+    # Only the original upload should exist.
+    # The analysis itself must not create another registration.
+    assert db.query(Dataset).count() == 1
+    assert db.query(DatasetVersion).count() == 1
+    assert db.query(FileMetadata).count() == 1
+
+
+def test_analyze_upload_does_not_modify_database(
+    client,
+    db,
+    isolated_storage,
+):
+    """
+    Analysis must be completely read-only with respect to
+    dataset registration.
+    """
+
+    response = client.post(
+        "/datasets/upload/analyze",
+        files={
+            "files": (
+                "analysis_only.csv",
+                io.BytesIO(
+                    b"id,name\n"
+                    b"1,Alice\n"
+                ),
+                "text/csv",
+            )
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["status"] == "all_new"
+
+    assert db.query(Dataset).count() == 0
+    assert db.query(DatasetVersion).count() == 0
+    assert db.query(FileMetadata).count() == 0
+    assert db.query(TableMetadata).count() == 0
+    assert db.query(ColumnMetadata).count() == 0

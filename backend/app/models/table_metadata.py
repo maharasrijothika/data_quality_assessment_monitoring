@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -36,5 +36,10 @@ class TableMetadata(Base):
 
     row_count: Mapped[int | None] = mapped_column(
         Integer,
+        nullable=True,
+    )
+
+    description: Mapped[str | None] = mapped_column(
+        Text,
         nullable=True,
     )

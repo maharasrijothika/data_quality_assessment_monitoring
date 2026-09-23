@@ -22,7 +22,13 @@ def read_table(
     extension = path.suffix.lower()
 
     if extension == ".csv":
-        return pd.read_csv(path)
+       try:
+           return pd.read_csv(path, encoding="utf-8")
+       except UnicodeDecodeError:
+           try:
+               return pd.read_csv(path, encoding="cp1252")
+           except UnicodeDecodeError:
+               return pd.read_csv(path, encoding="latin-1")
 
     if extension == ".parquet":
         return pd.read_parquet(path)

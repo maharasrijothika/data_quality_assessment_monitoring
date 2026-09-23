@@ -24,6 +24,224 @@ router = APIRouter(
     prefix="/datasets",
     tags=["datasets"],
 )
+@router.post("/upload/analyze")
+async def analyze_upload(
+    files: list[UploadFile] = File(...),
+    db: Session = Depends(get_db),
+):
+    """
+    Analyze an upload before registration.
+
+    This endpoint performs validation, fingerprinting, table discovery,
+    and duplicate detection, but does NOT create a dataset or version.
+
+    It is used by the human-review upload flow.
+    """
+
+    if not files:
+        raise HTTPException(
+            status_code=400,
+            detail="At least one file is required.",
+        )
+
+    temp_dir: Path | None = None
+
+    try:
+        processed_dir = (
+            Path(__file__).resolve().parents[3]
+            / "data"
+            / "processed"
+        )
+
+        processed_dir.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        temp_dir = Path(
+            tempfile.mkdtemp(
+                prefix="dq_analyze_",
+                dir=processed_dir,
+            )
+        )
+
+        prepared_files: list[dict] = []
+
+        # ---------------------------------------------------------
+        # 1. Validate and temporarily store files
+        # ---------------------------------------------------------
+
+        for uploaded_file in files:
+
+            if not uploaded_file.filename:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        "Every uploaded file must have "
+                        "a filename."
+                    ),
+                )
+
+            content = await uploaded_file.read()
+
+            try:
+                validate_uploaded_file(
+                    uploaded_file.filename,
+                    len(content),
+                )
+            except ValueError as exc:
+                raise HTTPException(
+                    status_code=400,
+                    detail=str(exc),
+                ) from exc
+
+            safe_filename = Path(
+                uploaded_file.filename
+            ).name
+
+            temp_path = temp_dir / safe_filename
+
+            temp_path.write_bytes(content)
+
+            prepared_files.append(
+                {
+                    "filename": uploaded_file.filename,
+                    "temp_path": temp_path,
+                }
+            )
+
+        # ---------------------------------------------------------
+        # 2. Fingerprint and discover tables
+        # ---------------------------------------------------------
+
+        for prepared_file in prepared_files:
+
+            temp_path = prepared_file["temp_path"]
+
+            fingerprint = calculate_file_fingerprint(
+                temp_path
+            )
+
+            try:
+                tables = discover_tables(temp_path)
+            except Exception as exc:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"Could not read "
+                        f"{prepared_file['filename']}: {exc}"
+                    ),
+                ) from exc
+
+            if not tables:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"No readable tables found in "
+                        f"{prepared_file['filename']}."
+                    ),
+                )
+
+            prepared_file["fingerprint"] = fingerprint
+            prepared_file["tables"] = tables
+
+        # ---------------------------------------------------------
+        # 3. Classify files as NEW or DUPLICATE
+        # ---------------------------------------------------------
+
+        duplicate_files: list[dict] = []
+        new_files: list[dict] = []
+
+        for prepared_file in prepared_files:
+
+            matches = find_duplicate_files(
+                db,
+                prepared_file["fingerprint"],
+            )
+
+            if matches:
+                duplicate_files.append(
+                    {
+                        "filename": prepared_file["filename"],
+                        "content_fingerprint": prepared_file[
+                            "fingerprint"
+                        ],
+                        "existing_files": [
+                            {
+                                "file_id": match.file_id,
+                                "original_filename": (
+                                    match.original_filename
+                                ),
+                                "stored_filename": (
+                                    match.stored_filename
+                                ),
+                                "version_id": match.version_id,
+                            }
+                            for match in matches
+                        ],
+                    }
+                )
+            else:
+                new_files.append(
+                    {
+                        "filename": prepared_file["filename"],
+                        "content_fingerprint": prepared_file[
+                            "fingerprint"
+                        ],
+                    }
+                )
+
+        # ---------------------------------------------------------
+        # 4. Determine analysis status
+        # ---------------------------------------------------------
+
+        if duplicate_files and new_files:
+            status = "review_required"
+            message = (
+                "Some uploaded files already exist in "
+                "the registered file history."
+            )
+        elif duplicate_files:
+            status = "all_duplicates"
+            message = (
+                "All uploaded files already exist in "
+                "the registered file history."
+            )
+        else:
+            status = "all_new"
+            message = (
+                "All uploaded files are new and can "
+                "be registered."
+            )
+
+        return {
+            "status": status,
+            "message": message,
+            "total_files": len(prepared_files),
+            "duplicate_count": len(duplicate_files),
+            "new_count": len(new_files),
+            "duplicate_files": duplicate_files,
+            "new_files": new_files,
+        }
+
+    except HTTPException:
+        db.rollback()
+        raise
+
+    except Exception as exc:
+        db.rollback()
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Upload analysis failed: {exc}",
+        ) from exc
+
+    finally:
+        if temp_dir is not None:
+            shutil.rmtree(
+                temp_dir,
+                ignore_errors=True,
+            )
 
 
 @router.post("/upload")
