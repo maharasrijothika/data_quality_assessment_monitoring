@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 /* ---------------------------------------------------------------------------
-   Shared presentational components for Stages 01–04.
+   Shared presentational components (extended design system).
    Purely visual: no state, no data fetching.
    --------------------------------------------------------------------------- */
 
@@ -51,6 +51,16 @@ export function IconFolder() {
   )
 }
 
+export function IconWarning() {
+  return (
+    <svg {...iconProps}>
+      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  )
+}
+
 type PageHeaderProps = {
   title: string
   description: string
@@ -91,7 +101,7 @@ export function CardHeader({ title, description, action }: CardHeaderProps) {
 }
 
 type NoticeProps = {
-  tone: 'success' | 'warning' | 'danger'
+  tone: 'success' | 'warning' | 'danger' | 'info'
   title: string
   children?: ReactNode
 }
@@ -104,6 +114,7 @@ export function Notice({ tone, title, children }: NoticeProps) {
     >
       <p className="notice-title">
         {tone === 'success' && <IconCheck />}
+        {tone === 'warning' && <IconWarning />}
         {title}
       </p>
       {children}
@@ -126,4 +137,64 @@ export function SummaryGrid({ items }: SummaryGridProps) {
       ))}
     </dl>
   )
+}
+
+/* Status badge mapping shared by all later stages. */
+
+export type StatusTone = 'neutral' | 'success' | 'warning' | 'danger' | 'accent'
+
+export function StatusBadge({
+  tone,
+  children,
+}: {
+  tone: StatusTone
+  children: ReactNode
+}) {
+  const classNames: Record<StatusTone, string> = {
+    neutral: 'badge',
+    success: 'badge badge-success',
+    warning: 'badge badge-warning',
+    danger: 'badge badge-danger',
+    accent: 'badge badge-accent',
+  }
+
+  return <span className={classNames[tone]}>{children}</span>
+}
+
+export function confidenceTone(level: string): StatusTone {
+  switch (level) {
+    case 'Strong':
+    case 'Approved':
+      return 'success'
+    case 'Probable':
+      return 'accent'
+    case 'Ambiguous':
+      return 'warning'
+    default:
+      return 'neutral'
+  }
+}
+
+export function ruleStatusTone(status: string): StatusTone {
+  switch (status) {
+    case 'approved':
+      return 'success'
+    case 'rejected':
+      return 'danger'
+    case 'VALID':
+      return 'success'
+    case 'NEEDS_REVIEW':
+      return 'warning'
+    case 'INVALID':
+      return 'danger'
+    default:
+      return 'neutral'
+  }
+}
+
+export function scoreTone(score: number): StatusTone {
+  if (score >= 95) return 'success'
+  if (score >= 85) return 'accent'
+  if (score >= 70) return 'warning'
+  return 'danger'
 }

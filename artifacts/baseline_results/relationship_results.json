@@ -1,0 +1,2680 @@
+[
+  {
+    "dataset_id": 4,
+    "version_id": 4,
+    "parent_table": "accounts",
+    "parent_column": "account",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "pk_candidate",
+    "score": 0.8,
+    "evidence_json": {
+      "parent_uniqueness": {
+        "value": 0.8,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "distinct_percentage": 100.0,
+      "null_percentage": 0.0,
+      "non_null_count": null,
+      "identifier_name_signal": false,
+      "identifier_signal": false
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "pk",
+    "created_at": "2026-10-04 06:23:28.223302",
+    "updated_at": "2026-10-04 06:23:28.223309"
+  },
+  {
+    "dataset_id": 4,
+    "version_id": 4,
+    "parent_table": "accounts",
+    "parent_column": "employees",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "pk_candidate",
+    "score": 0.8,
+    "evidence_json": {
+      "parent_uniqueness": {
+        "value": 0.8,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "distinct_percentage": 100.0,
+      "null_percentage": 0.0,
+      "non_null_count": null,
+      "identifier_name_signal": false,
+      "identifier_signal": false
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "pk",
+    "created_at": "2026-10-04 06:23:28.223312",
+    "updated_at": "2026-10-04 06:23:28.223313"
+  },
+  {
+    "dataset_id": 7,
+    "version_id": 7,
+    "parent_table": "olist_customers_dataset",
+    "parent_column": "customer_id",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "pk_candidate",
+    "score": 1.0,
+    "evidence_json": {
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "distinct_percentage": 100.0,
+      "null_percentage": 0.0,
+      "non_null_count": null,
+      "identifier_name_signal": true,
+      "identifier_signal": true
+    },
+    "status": "approved",
+    "human_note": null,
+    "candidate_kind": "pk",
+    "created_at": "2026-09-29 10:18:49.671126",
+    "updated_at": "2026-09-29 10:19:19.058281"
+  },
+  {
+    "dataset_id": 7,
+    "version_id": 7,
+    "parent_table": "olist_customers_dataset",
+    "parent_column": "customer_unique_id",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "pk_candidate",
+    "score": 0.9815,
+    "evidence_json": {
+      "parent_uniqueness": {
+        "value": 0.9815,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "distinct_percentage": 96.63619633752677,
+      "null_percentage": 0.0,
+      "non_null_count": null,
+      "identifier_name_signal": true,
+      "identifier_signal": false
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "pk",
+    "created_at": "2026-09-29 10:18:49.671137",
+    "updated_at": "2026-09-29 10:18:49.671138"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Products",
+    "parent_column": "CategoryID",
+    "child_table": "Categories",
+    "child_column": "CategoryID",
+    "parent_role": "pk_candidate",
+    "score": 0.4102,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 0.56,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.0,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.0,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 0.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 0.5238,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 20.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": false
+      },
+      "child_distinct": 11,
+      "parent_distinct": 5,
+      "contained_distinct": 0,
+      "containment": 0.0,
+      "overlap": 0.0,
+      "orphan_distinct_count": 11,
+      "orphan_distinct_rate": 1.0,
+      "evidence": {
+        "name_similarity": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 0.56,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.0,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.0,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 0.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 0.5238,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.554711",
+    "updated_at": "2026-09-27 09:38:20.554720"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "OrderDetails",
+    "parent_column": "OrderDetailID",
+    "child_table": "Customers",
+    "child_column": "CustomerID",
+    "parent_role": "pk_candidate",
+    "score": 0.6761,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.1739,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 23,
+      "parent_distinct": 26,
+      "contained_distinct": 23,
+      "containment": 1.0,
+      "overlap": 1.0,
+      "dense_integer_warning": "Both columns are dense integer sequences; containment/overlap evidence dampened (any two dense 1..N ranges trivially overlap).",
+      "orphan_distinct_count": 0,
+      "orphan_distinct_rate": 0.0,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.1739,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.669838",
+    "updated_at": "2026-09-27 09:38:20.669847"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Products",
+    "parent_column": "ProductID",
+    "child_table": "Customers",
+    "child_column": "CustomerID",
+    "parent_role": "pk_candidate",
+    "score": 0.6753,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.1684,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 23,
+      "parent_distinct": 25,
+      "contained_distinct": 23,
+      "containment": 1.0,
+      "overlap": 1.0,
+      "dense_integer_warning": "Both columns are dense integer sequences; containment/overlap evidence dampened (any two dense 1..N ranges trivially overlap).",
+      "orphan_distinct_count": 0,
+      "orphan_distinct_rate": 0.0,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.1684,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.758252",
+    "updated_at": "2026-09-27 09:38:20.758260"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Shippers",
+    "parent_column": "ShipperID",
+    "child_table": "Customers",
+    "child_column": "CustomerID",
+    "parent_role": "pk_candidate",
+    "score": 0.6716,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.2105,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.4783,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 0.9545,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 23,
+      "parent_distinct": 22,
+      "contained_distinct": 22,
+      "containment": 0.9565,
+      "overlap": 1.0,
+      "dense_integer_warning": "Both columns are dense integer sequences; containment/overlap evidence dampened (any two dense 1..N ranges trivially overlap).",
+      "orphan_distinct_count": 1,
+      "orphan_distinct_rate": 0.0435,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.2105,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.4783,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 0.9545,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.806098",
+    "updated_at": "2026-09-27 09:38:20.806108"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Suppliers",
+    "parent_column": "ContactName",
+    "child_table": "Customers",
+    "child_column": "ContactName",
+    "parent_role": "pk_candidate",
+    "score": 0.4654,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 0.8,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.0,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.0,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 0.9545,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 0.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": false,
+        "identifier_signal": false
+      },
+      "child_distinct": 23,
+      "parent_distinct": 22,
+      "contained_distinct": 0,
+      "containment": 0.0,
+      "overlap": 0.0,
+      "orphan_distinct_count": 23,
+      "orphan_distinct_rate": 1.0,
+      "evidence": {
+        "name_similarity": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 0.8,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.0,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.0,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 0.9545,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 0.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.898251",
+    "updated_at": "2026-09-27 09:38:20.898261"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Suppliers",
+    "parent_column": "Address",
+    "child_table": "Customers",
+    "child_column": "Address",
+    "parent_role": "pk_candidate",
+    "score": 0.4654,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 0.8,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.0,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.0,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 0.9545,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 0.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": false,
+        "identifier_signal": false
+      },
+      "child_distinct": 23,
+      "parent_distinct": 22,
+      "contained_distinct": 0,
+      "containment": 0.0,
+      "overlap": 0.0,
+      "orphan_distinct_count": 23,
+      "orphan_distinct_rate": 1.0,
+      "evidence": {
+        "name_similarity": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 0.8,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.0,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.0,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 0.9545,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 0.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.915842",
+    "updated_at": "2026-09-27 09:38:20.915846"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Suppliers",
+    "parent_column": "City",
+    "child_table": "Customers",
+    "child_column": "City",
+    "parent_role": "pk_candidate",
+    "score": 0.5294,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 0.725,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.1765,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.1765,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 0.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 86.36363636363636,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": false,
+        "identifier_signal": false
+      },
+      "child_distinct": 17,
+      "parent_distinct": 19,
+      "contained_distinct": 3,
+      "containment": 0.1765,
+      "overlap": 0.1765,
+      "orphan_distinct_count": 14,
+      "orphan_distinct_rate": 0.8235,
+      "evidence": {
+        "name_similarity": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 0.725,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.1765,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.1765,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 0.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.922174",
+    "updated_at": "2026-09-27 09:38:20.922177"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Suppliers",
+    "parent_column": "PostalCode",
+    "child_table": "Customers",
+    "child_column": "PostalCode",
+    "parent_role": "pk_candidate",
+    "score": 0.6,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.0,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.0,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 21,
+      "parent_distinct": 22,
+      "contained_distinct": 0,
+      "containment": 0.0,
+      "overlap": 0.0,
+      "orphan_distinct_count": 21,
+      "orphan_distinct_rate": 1.0,
+      "evidence": {
+        "name_similarity": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.0,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.0,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.937654",
+    "updated_at": "2026-09-27 09:38:20.937661"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Customers",
+    "parent_column": "CustomerID",
+    "child_table": "OrderDetails",
+    "child_column": "OrderDetailID",
+    "parent_role": "pk_candidate",
+    "score": 0.6486,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.1739,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.4423,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 0.8696,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 26,
+      "parent_distinct": 23,
+      "contained_distinct": 23,
+      "containment": 0.8846,
+      "overlap": 1.0,
+      "dense_integer_warning": "Both columns are dense integer sequences; containment/overlap evidence dampened (any two dense 1..N ranges trivially overlap).",
+      "orphan_distinct_count": 3,
+      "orphan_distinct_rate": 0.1154,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.1739,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.4423,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 0.8696,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.964160",
+    "updated_at": "2026-09-27 09:38:20.964168"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Customers",
+    "parent_column": "CustomerID",
+    "child_table": "OrderDetails",
+    "child_column": "Quantity  ",
+    "parent_role": "pk_candidate",
+    "score": 0.7965,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.1333,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.9412,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.9412,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 0.5,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 17,
+      "parent_distinct": 23,
+      "contained_distinct": 16,
+      "containment": 0.9412,
+      "overlap": 0.9412,
+      "orphan_distinct_count": 1,
+      "orphan_distinct_rate": 0.0588,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.1333,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.9412,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.9412,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 0.5,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.974498",
+    "updated_at": "2026-09-27 09:38:20.974504"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Orders",
+    "parent_column": "OrderID",
+    "child_table": "OrderDetails",
+    "child_column": "OrderID",
+    "parent_role": "pk_candidate",
+    "score": 0.8,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 19,
+      "parent_distinct": 21,
+      "contained_distinct": 19,
+      "containment": 1.0,
+      "overlap": 1.0,
+      "dense_integer_warning": "Both columns are dense integer sequences; containment/overlap evidence dampened (any two dense 1..N ranges trivially overlap).",
+      "orphan_distinct_count": 0,
+      "orphan_distinct_rate": 0.0,
+      "evidence": {
+        "name_similarity": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:20.998521",
+    "updated_at": "2026-09-27 09:38:20.998525"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Products",
+    "parent_column": "ProductID",
+    "child_table": "OrderDetails",
+    "child_column": "OrderDetailID",
+    "parent_role": "pk_candidate",
+    "score": 0.6685,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.1818,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.4808,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 0.96,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 26,
+      "parent_distinct": 25,
+      "contained_distinct": 25,
+      "containment": 0.9615,
+      "overlap": 1.0,
+      "dense_integer_warning": "Both columns are dense integer sequences; containment/overlap evidence dampened (any two dense 1..N ranges trivially overlap).",
+      "orphan_distinct_count": 1,
+      "orphan_distinct_rate": 0.0385,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.1818,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.4808,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 0.96,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:21.020045",
+    "updated_at": "2026-09-27 09:38:21.020050"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Products",
+    "parent_column": "ProductID",
+    "child_table": "OrderDetails",
+    "child_column": "ProductID",
+    "parent_role": "pk_candidate",
+    "score": 0.7366,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.3462,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.36,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 0.96,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 26,
+      "parent_distinct": 25,
+      "contained_distinct": 9,
+      "containment": 0.3462,
+      "overlap": 0.36,
+      "orphan_distinct_count": 17,
+      "orphan_distinct_rate": 0.6538,
+      "evidence": {
+        "name_similarity": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.3462,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.36,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 0.96,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:21.023632",
+    "updated_at": "2026-09-27 09:38:21.023639"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Products",
+    "parent_column": "ProductID",
+    "child_table": "OrderDetails",
+    "child_column": "Quantity  ",
+    "parent_role": "pk_candidate",
+    "score": 0.7977,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.1412,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.9412,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.9412,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 0.5,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 17,
+      "parent_distinct": 25,
+      "contained_distinct": 16,
+      "containment": 0.9412,
+      "overlap": 0.9412,
+      "orphan_distinct_count": 1,
+      "orphan_distinct_rate": 0.0588,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.1412,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.9412,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.9412,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 0.5,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:21.025194",
+    "updated_at": "2026-09-27 09:38:21.025198"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Shippers",
+    "parent_column": "ShipperID",
+    "child_table": "OrderDetails",
+    "child_column": "OrderDetailID",
+    "parent_role": "pk_candidate",
+    "score": 0.6344,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.1455,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.4231,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 0.8182,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 26,
+      "parent_distinct": 22,
+      "contained_distinct": 22,
+      "containment": 0.8462,
+      "overlap": 1.0,
+      "dense_integer_warning": "Both columns are dense integer sequences; containment/overlap evidence dampened (any two dense 1..N ranges trivially overlap).",
+      "orphan_distinct_count": 4,
+      "orphan_distinct_rate": 0.1538,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.1455,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.4231,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 0.8182,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:21.044036",
+    "updated_at": "2026-09-27 09:38:21.044044"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Shippers",
+    "parent_column": "ShipperID",
+    "child_table": "OrderDetails",
+    "child_column": "ProductID",
+    "parent_role": "pk_candidate",
+    "score": 0.5735,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.1778,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.2692,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.3182,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 0.8182,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 26,
+      "parent_distinct": 22,
+      "contained_distinct": 7,
+      "containment": 0.2692,
+      "overlap": 0.3182,
+      "orphan_distinct_count": 19,
+      "orphan_distinct_rate": 0.7308,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.1778,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.2692,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.3182,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 0.8182,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:21.049122",
+    "updated_at": "2026-09-27 09:38:21.049132"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Suppliers",
+    "parent_column": "SupplierID",
+    "child_table": "OrderDetails",
+    "child_column": "ProductID",
+    "parent_role": "pk_candidate",
+    "score": 0.5721,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.1684,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.2692,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.3182,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 0.8182,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 26,
+      "parent_distinct": 22,
+      "contained_distinct": 7,
+      "containment": 0.2692,
+      "overlap": 0.3182,
+      "orphan_distinct_count": 19,
+      "orphan_distinct_rate": 0.7308,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.1684,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.2692,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.3182,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 0.8182,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:21.068978",
+    "updated_at": "2026-09-27 09:38:21.068983"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Suppliers",
+    "parent_column": "SupplierID",
+    "child_table": "OrderDetails",
+    "child_column": "Quantity  ",
+    "parent_role": "pk_candidate",
+    "score": 0.7898,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.0889,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.9412,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.9412,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 0.5,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 17,
+      "parent_distinct": 22,
+      "contained_distinct": 16,
+      "containment": 0.9412,
+      "overlap": 0.9412,
+      "orphan_distinct_count": 1,
+      "orphan_distinct_rate": 0.0588,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.0889,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.9412,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.9412,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 0.5,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:21.070512",
+    "updated_at": "2026-09-27 09:38:21.070516"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Customers",
+    "parent_column": "CustomerID",
+    "child_table": "Orders",
+    "child_column": "CustomerID",
+    "parent_role": "pk_candidate",
+    "score": 0.6572,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.1429,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.1429,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 21,
+      "parent_distinct": 23,
+      "contained_distinct": 3,
+      "containment": 0.1429,
+      "overlap": 0.1429,
+      "orphan_distinct_count": 18,
+      "orphan_distinct_rate": 0.8571,
+      "evidence": {
+        "name_similarity": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.1429,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.1429,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:21.119285",
+    "updated_at": "2026-09-27 09:38:21.119292"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Customers",
+    "parent_column": "CustomerID",
+    "child_table": "Orders",
+    "child_column": "EmployeeID",
+    "parent_role": "pk_candidate",
+    "score": 0.668,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.12,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 6,
+      "parent_distinct": 23,
+      "contained_distinct": 6,
+      "containment": 1.0,
+      "overlap": 1.0,
+      "dense_integer_warning": "Both columns are dense integer sequences; containment/overlap evidence dampened (any two dense 1..N ranges trivially overlap).",
+      "orphan_distinct_count": 0,
+      "orphan_distinct_rate": 0.0,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.12,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:21.122719",
+    "updated_at": "2026-09-27 09:38:21.122728"
+  },
+  {
+    "dataset_id": 21,
+    "version_id": 21,
+    "parent_table": "Customers",
+    "parent_column": "CustomerID",
+    "child_table": "Orders",
+    "child_column": "ShipperID  ",
+    "parent_role": "pk_candidate",
+    "score": 0.6816,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 0.2105,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 0.5,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 3,
+      "parent_distinct": 23,
+      "contained_distinct": 3,
+      "containment": 1.0,
+      "overlap": 1.0,
+      "dense_integer_warning": "Both columns are dense integer sequences; containment/overlap evidence dampened (any two dense 1..N ranges trivially overlap).",
+      "orphan_distinct_count": 0,
+      "orphan_distinct_rate": 0.0,
+      "evidence": {
+        "name_similarity": {
+          "value": 0.2105,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 0.5,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "pending",
+    "human_note": null,
+    "candidate_kind": "relationship",
+    "created_at": "2026-09-27 09:38:21.126950",
+    "updated_at": "2026-09-27 09:38:21.126957"
+  },
+  {
+    "dataset_id": 22,
+    "version_id": 22,
+    "parent_table": "train",
+    "parent_column": "Row ID",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "pk_candidate",
+    "score": 1.0,
+    "evidence_json": {
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "distinct_percentage": 100.0,
+      "null_percentage": 0.0,
+      "non_null_count": null,
+      "identifier_name_signal": true,
+      "identifier_signal": true
+    },
+    "status": "approved",
+    "human_note": null,
+    "candidate_kind": "pk",
+    "created_at": "2026-09-28 04:10:27.506647",
+    "updated_at": "2026-09-28 04:11:33.891790"
+  },
+  {
+    "dataset_id": 22,
+    "version_id": 22,
+    "parent_table": "train",
+    "parent_column": "Order ID",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "pk_candidate",
+    "score": 0.7262,
+    "evidence_json": {
+      "parent_uniqueness": {
+        "value": 0.7262,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "distinct_percentage": 50.22448979591837,
+      "null_percentage": 0.0,
+      "non_null_count": null,
+      "identifier_name_signal": true,
+      "identifier_signal": false
+    },
+    "status": "rejected",
+    "human_note": null,
+    "candidate_kind": "pk",
+    "created_at": "2026-09-28 04:10:27.506657",
+    "updated_at": "2026-09-28 04:12:00.209063"
+  },
+  {
+    "dataset_id": 22,
+    "version_id": 22,
+    "parent_table": "train",
+    "parent_column": "Product ID",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "pk_candidate",
+    "score": 0.5544,
+    "evidence_json": {
+      "parent_uniqueness": {
+        "value": 0.5544,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "distinct_percentage": 18.989795918367346,
+      "null_percentage": 0.0,
+      "non_null_count": null,
+      "identifier_name_signal": true,
+      "identifier_signal": false
+    },
+    "status": "rejected",
+    "human_note": null,
+    "candidate_kind": "pk",
+    "created_at": "2026-09-28 04:10:27.506660",
+    "updated_at": "2026-09-28 04:12:07.329839"
+  },
+  {
+    "dataset_id": 22,
+    "version_id": 22,
+    "parent_table": "train",
+    "parent_column": "Sales",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "pk_candidate",
+    "score": 0.5731,
+    "evidence_json": {
+      "parent_uniqueness": {
+        "value": 0.5731,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "distinct_percentage": 58.744897959183675,
+      "null_percentage": 0.0,
+      "non_null_count": null,
+      "identifier_name_signal": false,
+      "identifier_signal": false
+    },
+    "status": "rejected",
+    "human_note": null,
+    "candidate_kind": "pk",
+    "created_at": "2026-09-28 04:10:27.506663",
+    "updated_at": "2026-09-28 04:12:03.395968"
+  },
+  {
+    "dataset_id": 22,
+    "version_id": 22,
+    "parent_table": "train",
+    "parent_column": "Ship Date + Sales",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "composite_pk_candidate",
+    "score": 0.999,
+    "evidence_json": {
+      "composite_uniqueness": {
+        "value": 0.999,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "columns": [
+        "Ship Date",
+        "Sales"
+      ],
+      "evaluated_row_count": 9800,
+      "composite_distinct_count": 9790,
+      "composite_uniqueness_percentage": 99.89795918367346,
+      "duplicate_composite_rows": 20,
+      "duplicate_composite_excess_count": 10
+    },
+    "status": "rejected",
+    "human_note": null,
+    "candidate_kind": "composite_pk",
+    "created_at": "2026-09-28 04:10:27.506666",
+    "updated_at": "2026-09-28 04:11:38.991579"
+  },
+  {
+    "dataset_id": 22,
+    "version_id": 22,
+    "parent_table": "train",
+    "parent_column": "Order Date + Sales",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "composite_pk_candidate",
+    "score": 0.9987,
+    "evidence_json": {
+      "composite_uniqueness": {
+        "value": 0.9987,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "columns": [
+        "Order Date",
+        "Sales"
+      ],
+      "evaluated_row_count": 9800,
+      "composite_distinct_count": 9787,
+      "composite_uniqueness_percentage": 99.86734693877551,
+      "duplicate_composite_rows": 26,
+      "duplicate_composite_excess_count": 13
+    },
+    "status": "rejected",
+    "human_note": null,
+    "candidate_kind": "composite_pk",
+    "created_at": "2026-09-28 04:10:27.506669",
+    "updated_at": "2026-09-28 04:11:48.117742"
+  },
+  {
+    "dataset_id": 22,
+    "version_id": 22,
+    "parent_table": "train",
+    "parent_column": "Ship Date + Product ID",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "composite_pk_candidate",
+    "score": 0.9974,
+    "evidence_json": {
+      "composite_uniqueness": {
+        "value": 0.9974,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "columns": [
+        "Ship Date",
+        "Product ID"
+      ],
+      "evaluated_row_count": 9800,
+      "composite_distinct_count": 9775,
+      "composite_uniqueness_percentage": 99.74489795918367,
+      "duplicate_composite_rows": 50,
+      "duplicate_composite_excess_count": 25
+    },
+    "status": "rejected",
+    "human_note": null,
+    "candidate_kind": "composite_pk",
+    "created_at": "2026-09-28 04:10:27.506673",
+    "updated_at": "2026-09-28 04:11:50.420110"
+  },
+  {
+    "dataset_id": 28,
+    "version_id": 33,
+    "parent_table": "Customer Loyalty History",
+    "parent_column": "Loyalty Number",
+    "child_table": "Customer Flight Activity",
+    "child_column": "Loyalty Number",
+    "parent_role": "pk_candidate",
+    "score": 1.0,
+    "evidence_json": {
+      "name_similarity": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "datatype_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "semantic_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_containment": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "value_overlap": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "cardinality_compatibility": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "child_completeness": {
+        "value": 1.0,
+        "applicable": true
+      },
+      "structural_evidence": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "semantic_types": {
+        "parent": "Customer ID",
+        "child": "Customer ID",
+        "match": true
+      },
+      "parent_pk": {
+        "distinct_percentage": 100.0,
+        "null_percentage": 0.0,
+        "non_null_count": null,
+        "identifier_name_signal": true,
+        "identifier_signal": true
+      },
+      "child_distinct": 16737,
+      "parent_distinct": 16737,
+      "contained_distinct": 16737,
+      "containment": 1.0,
+      "overlap": 1.0,
+      "orphan_distinct_count": 0,
+      "orphan_distinct_rate": 0.0,
+      "evidence": {
+        "name_similarity": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "datatype_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "semantic_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "parent_uniqueness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_containment": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "value_overlap": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "cardinality_compatibility": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "child_completeness": {
+          "value": 1.0,
+          "applicable": true
+        },
+        "structural_evidence": {
+          "value": 1.0,
+          "applicable": true
+        }
+      }
+    },
+    "status": "approved",
+    "human_note": null,
+    "candidate_kind": null,
+    "created_at": "2026-09-26 11:38:35.888508",
+    "updated_at": "2026-09-27 10:54:58.173195"
+  },
+  {
+    "dataset_id": 28,
+    "version_id": 33,
+    "parent_table": "Customer Flight Activity",
+    "parent_column": "Loyalty Number + Year + Month",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "composite_pk_candidate",
+    "score": 0.9901,
+    "evidence_json": {
+      "composite_uniqueness": {
+        "value": 0.9901,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "columns": [
+        "Loyalty Number",
+        "Year",
+        "Month"
+      ],
+      "evaluated_row_count": 392936,
+      "composite_distinct_count": 389065,
+      "composite_uniqueness_percentage": 99.01485229146732,
+      "duplicate_composite_rows": 7718,
+      "duplicate_composite_excess_count": 3871
+    },
+    "status": "rejected",
+    "human_note": null,
+    "candidate_kind": "composite_pk",
+    "created_at": "2026-09-27 10:54:55.461641",
+    "updated_at": "2026-09-27 16:45:08.643936"
+  },
+  {
+    "dataset_id": 28,
+    "version_id": 33,
+    "parent_table": "Customer Loyalty History",
+    "parent_column": "Loyalty Number",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "pk_candidate",
+    "score": 1.0,
+    "evidence_json": {
+      "parent_uniqueness": {
+        "value": 1.0,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "distinct_percentage": 100.0,
+      "null_percentage": 0.0,
+      "non_null_count": null,
+      "identifier_name_signal": true,
+      "identifier_signal": true
+    },
+    "status": "approved",
+    "human_note": null,
+    "candidate_kind": "pk",
+    "created_at": "2026-09-27 10:54:55.461648",
+    "updated_at": "2026-09-27 16:44:57.876907"
+  },
+  {
+    "dataset_id": 28,
+    "version_id": 33,
+    "parent_table": "Customer Loyalty History",
+    "parent_column": "Salary + Enrollment Year + Enrollment Month",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "composite_pk_candidate",
+    "score": 0.9857,
+    "evidence_json": {
+      "composite_uniqueness": {
+        "value": 0.9857,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "columns": [
+        "Salary",
+        "Enrollment Year",
+        "Enrollment Month"
+      ],
+      "evaluated_row_count": 12499,
+      "composite_distinct_count": 12320,
+      "composite_uniqueness_percentage": 98.56788543083447,
+      "duplicate_composite_rows": 355,
+      "duplicate_composite_excess_count": 179
+    },
+    "status": "rejected",
+    "human_note": null,
+    "candidate_kind": "composite_pk",
+    "created_at": "2026-09-27 10:54:55.461649",
+    "updated_at": "2026-09-27 16:45:14.251984"
+  },
+  {
+    "dataset_id": 28,
+    "version_id": 33,
+    "parent_table": "Customer Loyalty History",
+    "parent_column": "Postal Code + CLV",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "composite_pk_candidate",
+    "score": 0.985,
+    "evidence_json": {
+      "composite_uniqueness": {
+        "value": 0.985,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "columns": [
+        "Postal Code",
+        "CLV"
+      ],
+      "evaluated_row_count": 16737,
+      "composite_distinct_count": 16486,
+      "composite_uniqueness_percentage": 98.50032861325208,
+      "duplicate_composite_rows": 490,
+      "duplicate_composite_excess_count": 251
+    },
+    "status": "rejected",
+    "human_note": null,
+    "candidate_kind": "composite_pk",
+    "created_at": "2026-09-27 10:54:55.461651",
+    "updated_at": "2026-09-27 16:45:22.001542"
+  },
+  {
+    "dataset_id": 28,
+    "version_id": 33,
+    "parent_table": "Customer Loyalty History",
+    "parent_column": "Postal Code + Salary",
+    "child_table": "",
+    "child_column": "",
+    "parent_role": "composite_pk_candidate",
+    "score": 0.9811,
+    "evidence_json": {
+      "composite_uniqueness": {
+        "value": 0.9811,
+        "applicable": true
+      }
+    },
+    "stats_json": {
+      "columns": [
+        "Postal Code",
+        "Salary"
+      ],
+      "evaluated_row_count": 12499,
+      "composite_distinct_count": 12263,
+      "composite_uniqueness_percentage": 98.11184894791583,
+      "duplicate_composite_rows": 463,
+      "duplicate_composite_excess_count": 236
+    },
+    "status": "rejected",
+    "human_note": null,
+    "candidate_kind": "composite_pk",
+    "created_at": "2026-09-27 10:54:55.461652",
+    "updated_at": "2026-09-27 16:45:26.153654"
+  }
+]

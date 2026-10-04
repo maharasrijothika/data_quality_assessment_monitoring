@@ -1,12 +1,13 @@
 import json
 
-from sentence_transformers import SentenceTransformer
 from sqlalchemy.orm import Session
 
+from app.config import SEMANTIC_MODEL_NAME
 from app.models import SemanticConcept, SemanticConceptEmbedding
+from app.services.semantic_retrieval import EMBEDDING_KEY, get_embedding_model
 
 
-MODEL_NAME = "all-MiniLM-L6-v2"
+MODEL_NAME = EMBEDDING_KEY
 
 
 class SemanticEmbeddingService:
@@ -15,47 +16,40 @@ class SemanticEmbeddingService:
     """
 
     def __init__(self):
-        self.model = SentenceTransformer(MODEL_NAME)
+        self.model = get_embedding_model()
 
     @staticmethod
     def build_concept_text(concept: SemanticConcept) -> str:
         """
-        Build a semantic representation of a concept using
-        its name, description, aliases, data types, and
-        profile expectations.
+        Build the semantic representation of a concept.
+
+        Only natural-language fields (name, category, description, aliases)
+        are embedded. Raw JSON config (expected data types, profile
+        expectations) is machine-readable evidence used elsewhere in scoring;
+        embedding its serialized text pollutes the sentence-embedding space
+        and depresses similarities for every concept.
         """
 
         aliases = ""
-        expected_data_types = ""
-        profile_expectations = ""
 
         if concept.aliases:
-            aliases = f"Aliases: {concept.aliases}"
+            try:
+                alias_values = json.loads(concept.aliases)
+                if isinstance(alias_values, list):
+                    aliases = ", ".join(str(value) for value in alias_values)
+            except json.JSONDecodeError:
+                aliases = concept.aliases
 
-        if concept.expected_data_types:
-            expected_data_types = (
-                f"Expected data types: "
-                f"{concept.expected_data_types}"
-            )
+        parts = [
+            f"Concept: {concept.concept_name}",
+            f"Category: {concept.category}",
+            f"Description: {concept.description}",
+        ]
 
-        if concept.profile_expectations:
-            profile_expectations = (
-                f"Profile expectations: "
-                f"{concept.profile_expectations}"
-            )
+        if aliases:
+            parts.append(f"Also known as: {aliases}")
 
-        return "\n".join(
-            part
-            for part in [
-                f"Concept: {concept.concept_name}",
-                f"Category: {concept.category}",
-                f"Description: {concept.description}",
-                aliases,
-                expected_data_types,
-                profile_expectations,
-            ]
-            if part
-        )
+        return "\n".join(parts)
 
     def generate_embedding(self, text: str) -> list[float]:
         """
@@ -92,6 +86,9 @@ class SemanticEmbeddingService:
         )
 
         if existing:
+            if existing.model_name == MODEL_NAME and existing.embedding == json.dumps(vector):
+                return existing
+
             existing.model_name = MODEL_NAME
             existing.embedding = json.dumps(vector)
             embedding_record = existing

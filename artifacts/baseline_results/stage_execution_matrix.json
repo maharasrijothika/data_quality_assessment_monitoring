@@ -1,0 +1,846 @@
+[
+  {
+    "dataset_id": 1,
+    "dataset_name": "Duplicate Detection Test",
+    "version_id": 1,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\1\\1\\profile.json"
+    },
+    "semantic": {
+      "status": "PRESENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": "artifacts/semantic\\1\\1\\semantic_input.json"
+    },
+    "relationship": {
+      "status": "PRESENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": "artifacts/relationships\\1\\1\\relationships.json"
+    }
+  },
+  {
+    "dataset_id": 2,
+    "dataset_name": "Modified Content Test",
+    "version_id": 2,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "PRESENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": "artifacts/semantic\\2\\2\\semantic_input.json"
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 3,
+    "dataset_name": "Matching Test Dataset",
+    "version_id": 3,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 4,
+    "dataset_name": "finance",
+    "version_id": 4,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\4\\4\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "PRESENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": "artifacts/relationships\\4\\4\\relationships.json"
+    }
+  },
+  {
+    "dataset_id": 5,
+    "dataset_name": "Sales",
+    "version_id": 5,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 6,
+    "dataset_name": "sale",
+    "version_id": 6,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 7,
+    "dataset_name": "AdventureWorks",
+    "version_id": 7,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\7\\7\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "PRESENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": "artifacts/relationships\\7\\7\\relationships.json"
+    }
+  },
+  {
+    "dataset_id": 8,
+    "dataset_name": "olist_customers_dataset",
+    "version_id": 8,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 9,
+    "dataset_name": "Employee Attrition",
+    "version_id": 9,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 10,
+    "dataset_name": "flipkart data",
+    "version_id": 10,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\10\\10\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 11,
+    "dataset_name": "ecommerce_lap",
+    "version_id": 11,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 12,
+    "dataset_name": "Airbnb_Open_Data",
+    "version_id": 12,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 13,
+    "dataset_name": "Titanic-Dataset",
+    "version_id": 13,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 14,
+    "dataset_name": "Walmart_Sales",
+    "version_id": 14,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 15,
+    "dataset_name": "Finance",
+    "version_id": 15,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 16,
+    "dataset_name": "flipkart data",
+    "version_id": 16,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 17,
+    "dataset_name": "playstore_reviews",
+    "version_id": 17,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 18,
+    "dataset_name": "Stores",
+    "version_id": 18,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\18\\18\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 19,
+    "dataset_name": "House Price Prediction Dataset",
+    "version_id": 19,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\19\\19\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 20,
+    "dataset_name": "instacart_market_basket",
+    "version_id": 20,
+    "version_number": 1,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 21,
+    "dataset_name": "northwind",
+    "version_id": 21,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\21\\21\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "PRESENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": "artifacts/relationships\\21\\21\\relationships.json"
+    }
+  },
+  {
+    "dataset_id": 22,
+    "dataset_name": "train",
+    "version_id": 22,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\22\\22\\profile.json"
+    },
+    "semantic": {
+      "status": "PRESENT",
+      "run": {
+        "run_id": 1
+      },
+      "artifact": "artifacts/semantic\\22\\22\\predictions.json"
+    },
+    "relationship": {
+      "status": "PRESENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": "artifacts/relationships\\22\\22\\relationships.json"
+    }
+  },
+  {
+    "dataset_id": 23,
+    "dataset_name": "Maven+Fuzzy+Factory",
+    "version_id": 23,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\23\\23\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 24,
+    "dataset_name": "Manufacturing_Line_Productivity",
+    "version_id": 24,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\24\\24\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 25,
+    "dataset_name": "DQ Pipeline Demo",
+    "version_id": 25,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\25\\25\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 25,
+    "dataset_name": "DQ Pipeline Demo",
+    "version_id": 26,
+    "version_number": 2,
+    "profiling": {
+      "status": "ABSENT",
+      "artifact": null
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 25,
+    "dataset_name": "DQ Pipeline Demo",
+    "version_id": 27,
+    "version_number": 3,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\25\\27\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 25,
+    "dataset_name": "DQ Pipeline Demo",
+    "version_id": 28,
+    "version_number": 4,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\25\\28\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 25,
+    "dataset_name": "DQ Pipeline Demo",
+    "version_id": 29,
+    "version_number": 5,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\25\\29\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 26,
+    "dataset_name": "dq-core",
+    "version_id": 30,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\26\\30\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 26,
+    "dataset_name": "dq-core",
+    "version_id": 31,
+    "version_number": 2,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\26\\31\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 27,
+    "dataset_name": "semantics-tricky-live",
+    "version_id": 32,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\27\\32\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  },
+  {
+    "dataset_id": 28,
+    "dataset_name": "Airline+Loyalty+Program",
+    "version_id": 33,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\28\\33\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "PRESENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": "artifacts/relationships\\28\\33\\relationships.json"
+    }
+  },
+  {
+    "dataset_id": 29,
+    "dataset_name": "House Price Prediction Dataset",
+    "version_id": 34,
+    "version_number": 1,
+    "profiling": {
+      "status": "PRESENT",
+      "artifact": "artifacts/profiling\\29\\34\\profile.json"
+    },
+    "semantic": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null
+      },
+      "artifact": null
+    },
+    "relationship": {
+      "status": "ABSENT",
+      "run": {
+        "run_id": null,
+        "candidate_count": 0
+      },
+      "artifact": null
+    }
+  }
+]

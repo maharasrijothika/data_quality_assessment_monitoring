@@ -1207,9 +1207,50 @@ select.control {
 }
 
 .table--profile {
-  --table-cols: minmax(150px, 1.3fr) repeat(4, minmax(80px, 0.8fr))
-    minmax(180px, 1.6fr);
-  min-width: 780px;
+  --table-cols: minmax(140px, 1.2fr) repeat(4, minmax(72px, 0.7fr))
+    minmax(150px, 1.1fr) minmax(260px, 1.9fr);
+  min-width: 1020px;
+}
+
+/* Identifier-evidence cell: same typography/padding as the other cells so
+   the whole row reads as ONE table (no floating card look). */
+.profile-identifier-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  font-size: var(--fs-caption);
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+
+.profile-identifier-cell .profile-identifier-line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.profile-identifier-cell .profile-stat-label {
+  color: var(--color-text-muted);
+}
+
+/* Summary evidence stack: candidate line + indented evidence line, all
+   items in the same aligned list as duplicate rows / composite lines. */
+.profile-evidence-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile-evidence-sub {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 14px;
+  padding-left: 16px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  white-space: nowrap;
 }
 
 .table--profile .table-row {
@@ -1359,4 +1400,582 @@ select.control {
   .system-status {
     display: none;
   }
+}
+
+/* Stage 05 — semantic understanding */
+
+.semantic-list {
+  display: grid;
+}
+
+.semantic-item {
+  border-top: 1px solid var(--color-border);
+}
+
+.semantic-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  cursor: pointer;
+  list-style: none;
+  transition: background-color 0.15s;
+}
+
+.semantic-summary::-webkit-details-marker {
+  display: none;
+}
+
+.semantic-summary:hover {
+  background: var(--color-surface-muted);
+}
+
+.semantic-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.semantic-title strong {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.semantic-title span {
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+.semantic-badges {
+  display: flex;
+  flex: none;
+  gap: var(--space-2);
+}
+
+.semantic-body {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.semantic-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.semantic-heading {
+  margin-bottom: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.evidence-list,
+.alternatives-list,
+.rca-distribution {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.evidence-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
+}
+
+.evidence-item > span:nth-child(2) {
+  flex: 1;
+}
+
+.evidence-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+.evidence-marker {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  color: var(--color-text-disabled);
+  font-size: var(--fs-caption);
+}
+
+.evidence-marker.is-active {
+  border-color: transparent;
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.evidence-marker svg {
+  width: 11px;
+  height: 11px;
+}
+
+.alternatives-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  font-size: var(--fs-small);
+}
+
+.semantic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-divider);
+}
+
+/* Stage 04 — final semantic type display + inline edit */
+
+.semantic-final-value {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.semantic-final-rejected {
+  color: var(--color-danger);
+}
+
+.semantic-edit {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.semantic-normalization {
+  margin-top: var(--space-3);
+}
+
+.normalization-grid {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 4px var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  font-size: var(--fs-small);
+}
+
+.normalization-label {
+  color: var(--color-text-muted);
+}
+
+.normalization-value {
+  font-family: var(--font-mono, monospace);
+  overflow-wrap: anywhere;
+}
+
+/* Stage 05 — manual relationship / key entry */
+
+.manual-entries {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.manual-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.manual-entry-arrow {
+  padding-bottom: 8px;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  text-align: center;
+}
+
+.manual-entry-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-3);
+}
+
+.manual-entry-remove {
+  margin-bottom: 1px;
+}
+
+.key-entry-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 720px) {
+  .manual-entry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .manual-entry-arrow {
+    padding-bottom: 0;
+  }
+
+  .key-entry-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.badge-warning {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.badge-danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+/* Stages 06-08 — rules */
+
+.rule-toolbar {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.rule-list {
+  display: grid;
+}
+
+.rule-card {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.rule-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.rule-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rule-title strong {
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+.rule-badges {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.rule-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.rule-detail {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.validation-issues {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.validation-issue {
+  font-size: var(--fs-caption);
+  color: var(--color-text-muted);
+}
+
+.validation-issue.severity-error {
+  color: var(--color-danger);
+}
+
+.validation-issue.severity-warning {
+  color: var(--color-warning);
+}
+
+.execution-list {
+  display: grid;
+}
+
+.execution-item {
+  border-top: 1px solid var(--color-border);
+}
+
+.execution-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  cursor: pointer;
+  list-style: none;
+  transition: background-color 0.15s;
+}
+
+.execution-summary:hover {
+  background: var(--color-surface-muted);
+}
+
+.execution-body {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+/* Stage 09-10 — scoring, RCA, remediation */
+
+.table--metrics {
+  --table-cols: minmax(120px, 1fr) 110px repeat(3, minmax(90px, 0.7fr));
+}
+
+.rca-finding {
+  border-top: 1px solid var(--color-border);
+}
+
+.rca-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  cursor: pointer;
+  list-style: none;
+  transition: background-color 0.15s;
+}
+
+.rca-summary:hover {
+  background: var(--color-surface-muted);
+}
+
+.rca-body {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.rca-group {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.rca-distribution li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  font-size: var(--fs-small);
+}
+
+.table--evidence {
+  --table-cols: minmax(110px, 0.8fr) minmax(120px, 1fr) 90px minmax(180px, 1.4fr);
+}
+
+.table--evidence .table-row {
+  min-height: 44px;
+}
+
+@media (max-width: 720px) {
+  .semantic-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .table--metrics {
+    --table-cols: minmax(100px, 1fr) 90px 70px 70px 60px;
+  }
+}
+
+/* Sequential review navigation (semantic stage) */
+.review-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-3);
+}
+
+.review-position {
+  margin-inline: auto;
+}
+
+/* Full-stat profiling detail rows */
+.profile-stat-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: var(--fs-small);
+}
+
+.profile-stat-group .profile-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.profile-stat-group .profile-stat-label {
+  color: var(--color-text-muted, #64748b);
+}
+
+.profile-detail-blocks {
+  display: grid;
+  gap: 10px;
+}
+
+.profile-detail-block {
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  background: transparent;
+}
+
+/* Single-line table-level evidence items (duplicate rows, identifier
+   candidates, composite uniqueness candidates). All items share identical
+   styling so they read as one aligned evidence list. */
+.profile-evidence {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.06);
+  overflow-x: auto;
+}
+
+.profile-evidence .profile-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+  font-size: var(--fs-small);
+  line-height: 1.4;
+}
+
+.profile-evidence .profile-evidence-strong {
+  font-weight: 600;
+}
+
+.profile-evidence .profile-stat-label {
+  color: var(--color-text-muted, #64748b);
+}
+
+.profile-table-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.06);
+}
+
+.profile-table-evidence .profile-stat-label {
+  margin-right: 6px;
+}
+
+.profile-detail-block > strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: var(--fs-small);
+}
+
+/* ===== Stage 04 profiling: additive classes for new profile keys ===== */
+
+.profile-completeness {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.06);
+}
+
+.profile-deps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.04);
+}
+
+.profile-dep-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-small, 13px);
+}
+
+.profile-dep-chips {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: var(--fs-small, 12px);
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.profile-shapes,
+.profile-digit-lengths {
+  gap: 6px;
+}
+
+.profile-digit-lengths .profile-dep-chips,
+.profile-shapes .profile-dep-chips {
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+/* Stage 04 v2: new-concept proposal block inside the review card. */
+.semantic-proposal {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
 }

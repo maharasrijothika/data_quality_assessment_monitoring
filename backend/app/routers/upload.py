@@ -18,6 +18,7 @@ from app.services.ingestion import discover_tables
 from app.services.validation import validate_uploaded_file
 from app.services.version_snapshot import register_version_snapshot
 from app.services.versioning import create_dataset_version
+from app.services.stage_state import get_dataset_or_none, get_latest_version
 
 
 router = APIRouter(
@@ -655,4 +656,196 @@ async def upload_dataset(
                 temp_dir,
                 ignore_errors=True,
             )
+
+
+@router.post("/{dataset_id}/upload")
+async def upload_new_version(
+    dataset_id: int,
+    files: list[UploadFile] = File(...),
+    db: Session = Depends(get_db),
+):
+    """
+    Upload new files for an existing dataset, creating a new immutable
+    version with the previous latest version as parent.
+    """
+
+    dataset = get_dataset_or_none(db, dataset_id)
+
+    if dataset is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Dataset {dataset_id} not found.",
+        )
+
+    parent_version = get_latest_version(db, dataset_id)
+
+    if parent_version is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Dataset {dataset_id} has no registered version; "
+                "use the initial upload endpoint instead."
+            ),
+        )
+
+    if not files:
+        raise HTTPException(
+            status_code=400,
+            detail="At least one file is required.",
+        )
+
+    temp_dir: Path | None = None
+
+    try:
+        processed_dir = (
+            Path(__file__).resolve().parents[3]
+            / "data"
+            / "processed"
+        )
+
+        processed_dir.mkdir(parents=True, exist_ok=True)
+
+        temp_dir = Path(
+            tempfile.mkdtemp(
+                prefix="dq_upload_v_",
+                dir=processed_dir,
+            )
+        )
+
+        prepared_files: list[dict] = []
+
+        for uploaded_file in files:
+            if not uploaded_file.filename:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Every uploaded file must have a filename.",
+                )
+
+            content = await uploaded_file.read()
+
+            try:
+                validate_uploaded_file(uploaded_file.filename, len(content))
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+            safe_filename = Path(uploaded_file.filename).name
+            temp_path = temp_dir / safe_filename
+            temp_path.write_bytes(content)
+
+            prepared_files.append(
+                {
+                    "filename": uploaded_file.filename,
+                    "temp_path": temp_path,
+                }
+            )
+
+        dataset_tables: list[dict] = []
+        file_fingerprints: list[tuple[str, str]] = []
+
+        for prepared_file in prepared_files:
+            temp_path = prepared_file["temp_path"]
+
+            fingerprint = calculate_file_fingerprint(temp_path)
+
+            try:
+                tables = discover_tables(temp_path)
+            except Exception as exc:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"Could not read {prepared_file['filename']}: {exc}"
+                    ),
+                ) from exc
+
+            if not tables:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"No readable tables found in "
+                        f"{prepared_file['filename']}."
+                    ),
+                )
+
+            prepared_file["fingerprint"] = fingerprint
+            prepared_file["tables"] = tables
+
+            file_fingerprints.append(
+                (prepared_file["filename"], fingerprint)
+            )
+            dataset_tables.extend(tables)
+
+        schema_fingerprint = calculate_schema_fingerprint(dataset_tables)
+        content_fingerprint = calculate_dataset_content_fingerprint(
+            file_fingerprints
+        )
+
+        if content_fingerprint == parent_version.content_fingerprint:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    "Uploaded content is identical to the current latest "
+                    "version; no new version was created."
+                ),
+            )
+
+        version = create_dataset_version(
+            db=db,
+            dataset_id=dataset_id,
+            parent_version_id=parent_version.version_id,
+            schema_fingerprint=schema_fingerprint,
+            content_fingerprint=content_fingerprint,
+        )
+
+        snapshot_files = [
+            {
+                "filename": prepared_file["filename"],
+                "source_path": prepared_file["temp_path"],
+                "fingerprint": prepared_file["fingerprint"],
+                "tables": prepared_file["tables"],
+            }
+            for prepared_file in prepared_files
+        ]
+
+        registered_files = register_version_snapshot(
+            db=db,
+            dataset_id=dataset_id,
+            version_id=version.version_id,
+            version_number=version.version_number,
+            files=snapshot_files,
+        )
+
+        db.commit()
+
+        return {
+            "message": "New dataset version registered.",
+            "dataset_id": dataset_id,
+            "version_id": version.version_id,
+            "version_number": version.version_number,
+            "parent_version_id": parent_version.version_id,
+            "schema_fingerprint": schema_fingerprint,
+            "content_fingerprint": content_fingerprint,
+            "files": [
+                {
+                    "filename": registered["filename"],
+                    "stored_filename": registered["stored_filename"],
+                    "tables": registered["tables"],
+                }
+                for registered in registered_files
+            ],
+        }
+
+    except HTTPException:
+        db.rollback()
+        raise
+
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Version upload failed: {exc}",
+        ) from exc
+
+    finally:
+        if temp_dir is not None:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 

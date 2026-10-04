@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import './App.css'
+import { apiErrorMessage, apiFetch } from './api'
 import {
   CardHeader,
   IconCheck,
@@ -11,6 +12,11 @@ import {
   PageHeader,
   SummaryGrid,
 } from './ui'
+import { SemanticStage } from './stages/semantic'
+import { RelationshipsStage } from './stages/relationships'
+import { RulesStage, ExecutionStage } from './stages/rules'
+import { ScoringStage, RemediationStage } from './stages/scoring'
+import { MonitoringStage, FeedbackStage } from './stages/monitoring'
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 
@@ -19,16 +25,18 @@ const stages = [
   '02 Context',
   '03 Version',
   '04 Profiling',
-  '05 Metrics & Rules',
-  '06 Validation',
-  '07 Execution',
-  '08 RCA',
-  '09 Remediation',
-  '10 Monitoring',
+  '05 Semantic',
+  '06 Relationships',
+  '07 Rules',
+  '08 Execution',
+  '09 Scoring & RCA',
+  '10 Remediation',
+  '11 Monitoring',
+  '12 Feedback',
 ]
 
-// Stages 01–04 are implemented; the rest stay locked in the navigation.
-const LAST_AVAILABLE_STAGE = 3
+// Stage navigation covers the full pipeline; availability depends on an
+// opened dataset.
 
 const SOURCE_SYSTEMS = [
   'SAP',
@@ -91,6 +99,150 @@ type UploadAnalysis = {
   }>
 }
 
+// Profile block shapes (Stage 04). Backend emits these keys;
+// the frontend reads the new canonical names.
+export interface ProfileTable {
+  table_id: number
+  table_name: string
+  source_file: string
+  row_count: number | null
+  columns: Array<{
+    column_id: number
+    column_name: string
+    data_type: string
+    identifier_signal?: boolean
+    identifier_name_signal?: boolean
+    identifier_uniqueness_percentage?: number | string
+    identifier_completeness_percentage?: number | string
+    identifier_like?: boolean
+    identifier_like_reasons?: string[]
+    identifier_repeats?: boolean
+    numeric: {
+      min?: number | string
+      max?: number | string
+      mean?: number | string
+      median?: number | string
+      std?: number | string
+      q25?: number | string
+      q50?: number | string
+      q75?: number | string
+      iqr?: number | string
+      mad?: number | string
+      count?: number | string
+      integer_valued?: boolean
+      code_like?: boolean
+      meaningful_statistics?: boolean
+      stored_as?: string
+      constant?: boolean
+      near_constant?: boolean
+      top_value_share_percentage?: number | string
+      zero_count?: number | string
+      negative_count?: number | string
+      positive_count?: number | string
+      integer_sequence?: {
+        counter_like?: boolean
+        dense?: boolean
+        step_one?: boolean
+        low_cardinality?: boolean
+      }
+      leading_zero_loss_suspected?: boolean
+      leading_zero_loss_count?: number | string
+      digit_length_distribution?: Record<string, number | string>
+      suspicious_sentinel?: {
+        value: number | string
+        percentage: number | string
+      } | null
+    }
+    text?: {
+      shape?: {
+        dominant_shape?: string | null
+        dominant_coverage_percentage?: number | string
+        top_shapes?: Array<{ shape: string; percentage: number | string }>
+        is_regular?: boolean
+        suggested_regex?: string | null
+        skipped_reason?: string | null
+        length_min?: number | string
+        length_max?: number | string
+        constant_length?: boolean
+      }
+      patterns?: {
+        email_like?: number | string
+        numeric_like?: number | string
+        date_like?: number | string
+        postal_like?: number | string
+        alphanumeric_like?: number | string
+        contains_special_character?: number | string
+        contains_whitespace?: number | string
+      }
+      constant?: boolean
+      near_constant?: boolean
+      top_value_share_percentage?: number | string
+      case_variant_groups?: number | string
+      case_variant_examples?: string[][]
+      disguised_missing_count?: number
+      disguised_missing_values?: unknown[]
+      disguised_missing_percentage?: number | string
+      leading_trailing_whitespace_count?: number
+      normalized_distinct_count?: number | string
+      min_length?: number | string
+      max_length?: number | string
+      mean_length?: number | string
+      median_length?: number | string
+    }
+    datetime?: {
+      date_like_count?: number
+      date_like_percentage?: number | string
+      format_valid_percentage?: number | string
+      detected_format?: string | null
+      format_ambiguous?: boolean
+      format_confidence_percentage?: number | string
+      min?: number | string
+      max?: number | string
+      monotonic_increasing?: boolean
+      monotonic_decreasing?: boolean
+      has_time_component?: boolean
+      future_date_percentage?: number | string
+      span_days?: number | string
+      distinct_dates?: number | string
+      null_or_unparseable_count?: number | string
+    }
+    categorical?: {
+      category_count?: number | string
+      top_values?: Array<{ value: string; count: number | string; percentage: number | string }>
+    }
+  }>
+  row_completeness?: {
+    fully_complete_rows?: number | string
+    fully_complete_percentage?: number | string
+    rows_with_any_null?: number | string
+    average_filled_percentage_per_row?: number | string
+    emptiest_row_filled_percentage?: number | string
+    co_missing_patterns?: Array<{
+      columns: string[]
+      row_count: number | string
+    }>
+    row_count?: number | string
+    sampled?: boolean
+    sample_rows?: number | string
+  }
+  functional_dependencies?: {
+    dependencies?: Array<{
+      determinant: string
+      dependent: string
+      coverage_percentage?: number | string
+      bidirectional?: boolean
+      sampled?: boolean
+    }>
+  }
+  observations?: Array<{
+    severity?: string
+    code?: string
+    column?: string | null
+    message?: string
+    evidence?: Record<string, unknown>
+  }>
+}
+
 type ContextData = {
   dataset_id: number
   dataset_name: string
@@ -137,6 +289,20 @@ type DatasetSummary = {
   domain: string | null
   file_count: number | null
   table_count: number | null
+  first_incomplete_stage?: string | null
+  completed_count?: number
+  total_stages?: number
+}
+
+type StageProgress = {
+  stages: Array<{
+    stage_key: string
+    label: string
+    completed: boolean
+  }>
+  first_incomplete_stage: string | null
+  completed_count: number
+  total_stages: number
 }
 
 type BrowserFile = File & {
@@ -189,6 +355,14 @@ const normalizeDatasets = (payload: unknown): DatasetSummary[] => {
         domain: toTextOrNull(item.domain),
         file_count: toNumberOrNull(item.file_count ?? item.files_count),
         table_count: toNumberOrNull(item.table_count ?? item.tables_count),
+        first_incomplete_stage:
+          typeof item.first_incomplete_stage === 'string'
+            ? item.first_incomplete_stage
+            : null,
+        completed_count:
+          typeof item.completed_count === 'number' ? item.completed_count : 0,
+        total_stages:
+          typeof item.total_stages === 'number' ? item.total_stages : 0,
       },
     ]
   })
@@ -223,6 +397,15 @@ const formatStat = (value: unknown): string => {
   return String(value)
 }
 
+// Renders a count that tolerates old profiles where the key is missing.
+const formatCount = (value: unknown): string =>
+  typeof value === 'number' ? value.toLocaleString() : String(value ?? '—')
+
+// First value that is actually present (new-profile key wins, legacy key
+// used as fallback); undefined only when neither profile generation has it.
+const firstDefined = (...values: unknown[]): unknown =>
+  values.find((value) => value !== undefined)
+
 function App() {
   const [currentStage, setCurrentStage] = useState(0)
   const [profilingData, setProfilingData] = useState<any>(null)
@@ -250,13 +433,12 @@ function App() {
   const [savingContext, setSavingContext] = useState(false)
   const [contextMessage, setContextMessage] = useState('')
 
-  // Registered datasets + per-dataset stage progress seen in this browser session.
+  // Registered datasets + backend-persisted stage progress.
   const [datasets, setDatasets] = useState<DatasetSummary[]>([])
   const [loadingDatasets, setLoadingDatasets] = useState(false)
   const [datasetsError, setDatasetsError] = useState('')
   const [datasetFilter, setDatasetFilter] = useState('')
-  const [savedContextIds, setSavedContextIds] = useState<Set<number>>(new Set())
-  const [profiledIds, setProfiledIds] = useState<Set<number>>(new Set())
+  const [stageProgress, setStageProgress] = useState<StageProgress | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const folderInputRef = useRef<HTMLInputElement>(null)
@@ -303,27 +485,29 @@ function App() {
     setDatasetsError('')
 
     try {
-      const response = await fetch(`${API_BASE_URL}/datasets`)
+      const data = await apiFetch<{
+        datasets: Array<Record<string, unknown>>
+      }>('/datasets')
 
-      if (!response.ok) {
-        throw new Error(
-          response.status === 404 || response.status === 405
-            ? 'The backend has no dataset list endpoint yet (GET /datasets).'
-            : `Dataset list request failed with status ${response.status}.`,
-        )
-      }
-
-      setDatasets(normalizeDatasets(await response.json()))
+      setDatasets(normalizeDatasets(data))
     } catch (err) {
       console.error('Dataset list request failed:', err)
 
-      setDatasetsError(
-        err instanceof Error
-          ? err.message
-          : 'Could not connect to the backend.',
-      )
+      setDatasetsError(apiErrorMessage(err))
     } finally {
       setLoadingDatasets(false)
+    }
+  }, [])
+
+  const loadStageProgress = useCallback(async (datasetId: number) => {
+    try {
+      const data = await apiFetch<StageProgress>(
+        `/datasets/${datasetId}/stages`,
+      )
+
+      setStageProgress(data)
+    } catch {
+      setStageProgress(null)
     }
   }, [])
 
@@ -389,7 +573,7 @@ function App() {
 
       setProfilingData(data)
       setProfilingDatasetId(datasetId)
-      setProfiledIds((current) => new Set(current).add(datasetId))
+      void loadStageProgress(datasetId)
     } catch (err) {
       console.error('Profiling load failed:', err)
 
@@ -422,6 +606,7 @@ function App() {
     setExpandedProfileTables(new Set())
     setCurrentStage(1)
 
+    void loadStageProgress(datasetId)
     await loadContext(datasetId)
   }
 
@@ -434,7 +619,7 @@ function App() {
       return
     }
 
-    if (!contextData || index > LAST_AVAILABLE_STAGE) {
+    if (!contextData) {
       return
     }
 
@@ -706,10 +891,8 @@ function App() {
       }
 
       setContextMessage('Dataset context saved successfully.')
-      setSavedContextIds((current) =>
-        new Set(current).add(contextData.dataset_id),
-      )
       setCurrentStage(2)
+      void loadStageProgress(contextData.dataset_id)
     } catch (err) {
       console.error('Context save failed:', err)
 
@@ -782,32 +965,37 @@ function App() {
     })
   }
 
-  /* ---------- Derived view state (no new business logic) ---------- */
+  /* ---------- Derived view state ---------- */
 
-  // Context counts as provided once it was saved this session or has any content.
-  const contextProvided =
-    contextData !== null &&
-    (savedContextIds.has(contextData.dataset_id) ||
-      [
-        contextData.description,
-        contextData.domain,
-        contextData.update_cadence,
-      ].some((value) => Boolean(value?.trim())))
-
+  // Stage completion comes from the backend (persisted), with local fallbacks
+  // for stages 01-04 whose backends already tracked state implicitly.
   const isStageDone = (index: number): boolean => {
     if (contextData === null) return false
 
-    switch (index) {
-      case 0:
-      case 2:
-        return true
-      case 1:
-        return contextProvided
-      case 3:
-        return profiledIds.has(contextData.dataset_id)
-      default:
-        return false
+    const persistedKeys: Record<number, string> = {
+      0: 'ingestion',
+      1: 'context',
+      2: 'version',
+      3: 'profiling',
+      4: 'semantic',
+      5: 'relationships',
+      6: 'recommendations',
+      7: 'validation',
+      8: 'execution',
+      9: 'scoring',
+      10: 'remediation',
+      11: 'monitoring',
     }
+
+    const stageKey = persistedKeys[index]
+
+    if (stageKey && stageProgress) {
+      return stageProgress.stages.some(
+        (stage) => stage.stage_key === stageKey && stage.completed,
+      )
+    }
+
+    return false
   }
 
   const datasetFilterText = datasetFilter.trim().toLowerCase()
@@ -853,9 +1041,7 @@ function App() {
           <div className="stage-list">
             {stages.map((stage, index) => {
               const isCurrent = index === currentStage
-              const isAvailable =
-                index === 0 ||
-                (index <= LAST_AVAILABLE_STAGE && contextData !== null)
+              const isAvailable = index === 0 || contextData !== null
               const isDone = isStageDone(index)
 
               const state = isCurrent
@@ -878,9 +1064,7 @@ function App() {
                   title={
                     isAvailable
                       ? undefined
-                      : index > LAST_AVAILABLE_STAGE
-                        ? 'Not available yet'
-                        : 'Register or open a dataset first'
+                      : 'Register or open a dataset first'
                   }
                   onClick={() => goToStage(index)}
                 >
@@ -1781,15 +1965,126 @@ function App() {
                             </span>
                           </div>
 
-                          {isExpanded && (
-                            <div className="table-expand">
+                          {isExpanded && (                              <div className="table-expand">
+                              <div className="profile-evidence">
+                                <span className="profile-stat">
+                                  <span className="profile-evidence-strong">Complete duplicate rows</span>{' '}
+                                  {formatNumber(table.complete_duplicate_rows ?? 0)}
+                                  {table.complete_duplicate_excess_count > 0 && (
+                                    <span> (excess {formatNumber(table.complete_duplicate_excess_count)})</span>
+                                  )}
+                                </span>
+                                {(table.composite_uniqueness_candidates || []).map((composite: any) => (
+                                  <span className="profile-stat" key={composite.columns.join('|')}>
+                                    <span className="profile-evidence-strong">Composite uniqueness candidate</span>{' '}
+                                    <span>{composite.columns.join(' + ')}</span>{' '}
+                                    {Number(composite.composite_uniqueness_percentage ?? 0).toFixed(4)}% unique
+                                    {composite.key_like_members?.length > 0 && (
+                                      <span className="cell-sub"> (key-like: {composite.key_like_members.join(', ')})</span>
+                                    )}
+                                    {composite.contains_measure && (
+                                      <span className="cell-sub"> (contains measure)</span>
+                                    )}
+                                    {Number(composite.composite_uniqueness_percentage ?? 0) >= 99.9 && (
+                                      <span className="cell-sub"> (near-exact)</span>
+                                    )}
+                                    {composite.sampled && (
+                                      <span className="cell-sub"> (sampled: {formatCount(composite.sample_rows)} rows)</span>
+                                    )}
+                                  </span>
+                                ))}
+                                {table.columns.filter((c: any) => c.identifier_signal || c.identifier_like).length > 0 && (
+                                  table.columns
+                                    .filter((c: any) => c.identifier_signal || c.identifier_like)
+                                    .map((column: any) => (
+                                      <span className="profile-evidence-stack" key={column.column_name}>
+                                        <span className="profile-stat">
+                                          <span className="profile-evidence-strong">Identifier candidate</span>{' '}
+                                          <span>{column.column_name}</span>
+                                        </span>
+                                        <span className="profile-evidence-sub">
+                                          <span>Name signal {column.identifier_name_signal ? 'Yes' : 'No'}</span>
+                                          <span>Uniqueness {formatStat(column.identifier_uniqueness_percentage)}%</span>
+                                          <span>Completeness {formatStat(column.identifier_completeness_percentage)}%</span>
+                                          {column.identifier_like && <span>Identifier-like evidence: yes</span>}
+                                          {column.identifier_repeats && <span>Repeats values (natural key)</span>}
+                                        </span>
+                                      </span>
+                                    ))
+                                )}
+                              </div>
+                              {table.row_completeness && (
+                                <div className="profile-completeness">
+                                  <span className="profile-stat">
+                                    <span className="profile-evidence-strong">Fully complete rows</span>{' '}
+                                    {formatStat(table.row_completeness.fully_complete_percentage ?? '—')}%
+                                    {' '}({formatCount(table.row_completeness.fully_complete_rows)} of {formatCount(table.row_completeness.row_count)})
+                                  </span>
+                                  {(table.row_completeness.co_missing_patterns || []).slice(0, 5).map((pattern: any) => (
+                                    <span className="profile-stat" key={pattern.columns.join('|')}>
+                                      <span className="profile-evidence-strong">Co-missing</span>{' '}
+                                      <span>{pattern.columns.join(' + ')}</span>{' '}
+                                      {formatCount(pattern.row_count)} rows
+                                    </span>
+                                  ))}
+                                  {table.row_completeness.sampled && (
+                                    <span className="cell-sub">(sampled: {formatCount(table.row_completeness.sample_rows)} rows)</span>
+                                  )}
+                                </div>
+                              )}
+                              {(table.observations || []).length > 0 && (
+                                <div className="profile-evidence profile-key-findings">
+                                  <span className="profile-evidence-strong">Key findings</span>
+                                  {[...table.observations]
+                                    .sort(
+                                      (first: any, second: any) =>
+                                        (first.severity === 'warning' ? 0 : 1) -
+                                        (second.severity === 'warning' ? 0 : 1),
+                                    )
+                                    .map((observation: any, observationIndex: number) => (
+                                      <span
+                                        className="profile-stat"
+                                        key={`${observation.code}-${observation.column ?? 'table'}-${observationIndex}`}
+                                      >
+                                        <span
+                                          className={`badge ${observation.severity === 'warning' ? 'badge-warning' : 'badge-accent'}`}
+                                        >
+                                          {observation.severity === 'warning' ? 'Warning' : 'Info'}
+                                        </span>{' '}
+                                        {observation.column && (
+                                          <span className="mono">{observation.column}: </span>
+                                        )}
+                                        <span>{observation.message}</span>
+                                      </span>
+                                    ))}
+                                </div>
+                              )}
+                              {table.functional_dependencies && (table.functional_dependencies.dependencies || []).length > 0 && (
+                                <div className="profile-deps">
+                                  <span className="profile-evidence-strong">Determines (functional dependencies)</span>
+                                  {(table.functional_dependencies.dependencies || []).slice(0, 8).map((dependency: any) => (
+                                    <span className="profile-dep-line" key={`${dependency.determinant}->${dependency.dependent}`}>
+                                      <span className="mono">{dependency.determinant} → {dependency.dependent}</span>{' '}
+                                      {formatStat(dependency.coverage_percentage)}% of rows
+                                      {dependency.bidirectional && (
+                                        <span className="profile-dep-chips">1:1</span>
+                                      )}
+                                      {dependency.sampled && (
+                                        <span className="profile-dep-chips">sampled</span>
+                                      )}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                               <div className="table-scroll">
                                 <div className="table table--profile">
                                   <div className="table-head">
                                     <span>Column</span>
                                     <span className="num">Nulls</span>
-                                    <span className="num">Distinct values</span>                                    <span className="num">Empty strings</span>
+                                    <span className="num">Distinct values</span>
+                                    <span className="num">Empty strings</span>
                                     <span className="num">Whitespace only</span>
+                                    <span>Identifier evidence</span>
                                     <span>Value statistics</span>
                                   </div>
 
@@ -1809,7 +2104,7 @@ function App() {
 
                                         {column.identifier_signal && (
                                           <span className="badge badge-accent">
-                                            Identifier evidence
+                                            Candidate identifier
                                           </span>
                                         )}
                                       </div>
@@ -1860,57 +2155,208 @@ function App() {
                                         </span>
                                       </span>
 
-                                      <div className="detail-cell">
-                                        {column.numeric && (
-                                          <div className="detail-line">
-                                            <strong>Numeric</strong>
-                                            <span>
-                                              Min {formatStat(column.numeric.min)}
+                                      <div className="profile-identifier-cell">
+                                        {column.identifier_signal ? (
+                                          <>
+                                            <span className="badge badge-success">Candidate identifier</span>
+                                            <span className="profile-identifier-line">
+                                              <span className="profile-stat-label">Name signal</span>{' '}
+                                              {column.identifier_name_signal ? 'Yes' : 'No'}
                                             </span>
-                                            <span>
-                                              Max {formatStat(column.numeric.max)}
+                                            <span className="profile-identifier-line">
+                                              <span className="profile-stat-label">Uniqueness</span>{' '}
+                                              {formatStat(column.identifier_uniqueness_percentage)}%
                                             </span>
-                                            <span>
-                                              Mean {formatStat(column.numeric.mean)}
+                                            <span className="profile-identifier-line">
+                                              <span className="profile-stat-label">Completeness</span>{' '}
+                                              {formatStat(column.identifier_completeness_percentage)}%
                                             </span>
+                                            {column.identifier_like && (
+                                              <span className="profile-identifier-line">
+                                                <span className="profile-stat-label">Evidence</span>{' '}
+                                                {(column.identifier_like_reasons || []).join('; ') || 'value-shape evidence'}
+                                              </span>
+                                            )}
+                                          </>
+                                        ) : (
+                                          <span className="cell-sub">—</span>
+                                        )}
+                                      </div>
 
+                                      <div className="detail-cell profile-detail-blocks">
+                                        {column.numeric && (
+                                          <div className="profile-detail-block">
+                                            <strong>Numeric</strong>
+
+                                            <div className="profile-stat-group">
+                                              <span className="profile-stat"><span className="profile-stat-label">min</span> {formatStat(column.numeric.min)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">max</span> {formatStat(column.numeric.max)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">mean</span> {formatStat(column.numeric.mean)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">median</span> {formatStat(column.numeric.median)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">std</span> {formatStat(column.numeric.std)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">q25</span> {formatStat(column.numeric.q25)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">q50</span> {formatStat(column.numeric.q50)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">q75</span> {formatStat(column.numeric.q75)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">IQR</span> {formatStat(column.numeric.iqr)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">MAD</span> {formatStat(column.numeric.mad)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">count</span> {formatStat(column.numeric.count)}</span>
+                                              {column.numeric.constant && (
+                                                <span className="profile-stat"><span className="badge badge-warning">Constant (single value)</span></span>
+                                              )}
+                                              {!column.numeric.constant && column.numeric.near_constant && (
+                                                <span className="profile-stat"><span className="badge badge-warning">Near-constant</span> <span className="cell-sub">top value {formatStat(column.numeric.top_value_share_percentage ?? 0)}% of rows</span></span>
+                                              )}
+                                              {column.numeric.meaningful_statistics === false && (
+                                                <span className="profile-stat"><span className="badge badge-warning">Statistics not meaningful</span> <span className="cell-sub">values look like codes/labels</span></span>
+                                              )}
+                                              {firstDefined(column.numeric.zero_count, column.numeric.negative_count, column.numeric.positive_count) !== undefined && (
+                                                <span className="profile-stat"><span className="profile-stat-label">zero / negative / positive</span> {formatCount(column.numeric.zero_count)} / {formatCount(column.numeric.negative_count)} / {formatCount(column.numeric.positive_count)}</span>
+                                              )}
+                                              {column.numeric.integer_valued !== undefined && (
+                                                <span className="profile-stat"><span className="profile-stat-label">integer valued</span> {column.numeric.integer_valued ? 'yes' : 'no'}{column.numeric.max_decimal_places !== undefined && <> (max {formatStat(column.numeric.max_decimal_places)} decimals)</>}</span>
+                                              )}
+                                              {column.numeric.p01 !== undefined && (
+                                                <span className="profile-stat"><span className="profile-stat-label">p01 / p05 / p95 / p99</span> {formatStat(column.numeric.p01)} / {formatStat(column.numeric.p05)} / {formatStat(column.numeric.p95)} / {formatStat(column.numeric.p99)}</span>
+                                              )}
+                                              {column.numeric.skewness !== undefined && (
+                                                <span className="profile-stat"><span className="profile-stat-label">skewness</span> {formatStat(column.numeric.skewness)}</span>
+                                              )}
+                                              {column.numeric.suspicious_sentinel && (
+                                                <span className="profile-stat"><span className="badge badge-warning">Suspicious sentinel values</span> <span className="cell-sub">e.g. {formatStat(column.numeric.suspicious_sentinel?.value)} ({formatStat(column.numeric.suspicious_sentinel?.percentage)}% of rows)</span></span>
+                                              )}
+                                              {column.numeric.code_like && (
+                                                <span className="profile-stat"><span className="badge badge-accent">Code-like numeric</span> <span className="cell-sub">stored as {formatStat(column.stored_as ?? column.numeric.stored_as ?? '—')}, semantic type mismatch</span></span>
+                                              )}
+                                              {column.numeric.leading_zero_loss_suspected && (
+                                                <span className="profile-stat"><span className="badge badge-warning">Leading zeros lost</span> <span className="cell-sub">{formatStat(column.numeric.leading_zero_loss_count ?? 0)} values ({formatStat(column.numeric.leading_zero_loss_percentage ?? 0)}%)</span></span>
+                                              )}
+                                              {column.numeric.digit_length_distribution && Object.keys(column.numeric.digit_length_distribution).length > 0 && (
+                                                <span className="profile-stat profile-digit-lengths"><span className="profile-stat-label">digit lengths</span> {Object.entries(column.numeric.digit_length_distribution).map(([digitLength, count]) => <span key={digitLength} className="profile-dep-chips">{digitLength}: {formatStat(count as number | string)}</span>)}</span>
+                                              )}
+                                            </div>
                                           </div>
                                         )}
 
                                         {column.text && (
-                                          <div className="detail-line">
+                                          <div className="profile-detail-block">
                                             <strong>Text</strong>
-                                            <span>
-                                              Length{' '}
-                                              {formatStat(column.text.min_length)}
-                                              –
-                                              {formatStat(column.text.max_length)}
-                                            </span>
-                                            <span>
-                                              Mean length{' '}
-                                              {formatStat(
-                                                column.text.mean_length,
-                                              )}
-                                            </span>
+
+                                            <div className="profile-stat-group">
+                                              <span className="profile-stat"><span className="profile-stat-label">length min–max</span> {formatStat(column.text.min_length)}–{formatStat(column.text.max_length)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">mean length</span> {formatStat(column.text.mean_length)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">median length</span> {formatStat(column.text.median_length)}</span>
+                                            </div>
+                                            {column.text.patterns && (
+                                              <div className="profile-stat-group" style={{ marginTop: 6 }}>
+                                                <span className="profile-stat"><span className="profile-stat-label">email-like</span> {formatStat(column.text.patterns.email_like)}</span>
+                                                <span className="profile-stat"><span className="profile-stat-label">numeric-like</span> {formatStat(column.text.patterns.numeric_like)}</span>
+                                                <span className="profile-stat"><span className="profile-stat-label">date-like</span> {formatStat(column.text.patterns.date_like)}</span>
+                                                <span className="profile-stat"><span className="profile-stat-label">postal-like</span> {formatStat(column.text.patterns.postal_like)}</span>
+                                                <span className="profile-stat"><span className="profile-stat-label">alphanumeric</span> {formatStat(column.text.patterns.alphanumeric_like)}</span>
+                                                <span className="profile-stat"><span className="profile-stat-label">special chars</span> {formatStat(column.text.patterns.contains_special_character)}</span>
+                                                <span className="profile-stat"><span className="profile-stat-label">contains whitespace</span> {formatStat(column.text.patterns.contains_whitespace)}</span>
+                                              </div>
+                                            )}
+                                            {(column.text.constant || column.text.near_constant) && (
+                                              <div className="profile-stat-group" style={{ marginTop: 6 }}>
+                                                {column.text.constant && <span className="profile-stat"><span className="badge badge-warning">Constant (single value)</span></span>}
+                                                {!column.text.constant && column.text.near_constant && <span className="profile-stat"><span className="badge badge-warning">Near-constant</span> <span className="cell-sub">top value {formatStat(column.text.top_value_share_percentage ?? 0)}% of rows</span></span>}
+                                              </div>
+                                            )}
+                                            {(column.identifier_like || column.text.code_like) && (
+                                              <div className="profile-stat-group" style={{ marginTop: 6 }}>
+                                                {column.identifier_like && (
+                                                  <span className="profile-stat"><span className="badge badge-accent">Identifier-like</span> <span className="cell-sub">{(column.identifier_like_reasons || []).join('; ') || 'shape evidence'}</span></span>
+                                                )}
+                                                {column.identifier_repeats && <span className="profile-stat"><span className="profile-stat-label">repeats values</span> yes (natural key, not unique)</span>}
+                                                {column.text.code_like && <span className="profile-stat"><span className="badge badge-accent">Code-like</span></span>}
+                                              </div>
+                                            )}
+                                            {column.text.shape && (
+                                              <div className="profile-stat-group" style={{ marginTop: 6 }}>
+                                                {column.datetime && column.datetime.detected_format ? (
+                                                  <span className="profile-stat"><span className="profile-stat-label">format</span> <span className="mono">{String(column.datetime.detected_format)}</span></span>
+                                                ) : (
+                                                  <>
+                                                    <span className="profile-stat"><span className="profile-stat-label">dominant shape</span> <span className="mono">{formatStat(column.text.shape.dominant_shape)}</span> ({formatStat(column.text.shape.dominant_coverage_percentage)}% coverage{column.text.shape.is_regular ? ', regular' : ''})</span>
+                                                    {(column.text.shape.top_shapes || []).length > 1 && (
+                                                      <span className="profile-stat profile-shapes"><span className="profile-stat-label">top shapes</span> {(column.text.shape.top_shapes || []).map((shape: any) => <span key={shape.shape} className="profile-dep-chips"><span className="mono">{shape.shape}</span> {formatStat(shape.percentage)}%</span>)}</span>
+                                                    )}
+                                                    {column.text.shape.suggested_regex && <span className="profile-stat"><span className="profile-stat-label">suggested regex</span> <span className="mono">{String(column.text.shape.suggested_regex)}</span></span>}
+                                                    {column.text.shape.skipped_reason && <span className="profile-stat cell-sub">shapes skipped: {formatStat(column.text.shape.skipped_reason)}</span>}
+                                                  </>
+                                                )}
+                                              </div>
+                                            )}
+                                            {column.text.separators && (
+                                              <div className="profile-stat-group" style={{ marginTop: 6 }}>
+                                                <span className="profile-stat"><span className="profile-stat-label">separators</span> {formatStat(column.text.separators.summary)}</span>
+                                              </div>
+                                            )}
+                                            {(column.text.disguised_missing_count > 0 || column.text.leading_trailing_whitespace_count > 0 || column.unhashable_values || (column.text.case_variant_groups || []).length > 0 || column.text.normalized_distinct_count !== undefined) && (
+                                              <div className="profile-stat-group" style={{ marginTop: 6 }}>
+                                                {column.text.disguised_missing_count > 0 && (
+                                                  <span className="profile-stat"><span className="badge badge-warning">Disguised missing</span> <span className="cell-sub">{formatCount(column.text.disguised_missing_count)} values ({formatStat(column.text.disguised_missing_percentage ?? 0)}%){(column.text.disguised_missing_values || []).length > 0 && <>: {(column.text.disguised_missing_values || []).map((value: any) => `"${String(value)}"`).join(', ')}</>}</span></span>
+                                                )}
+                                                {column.text.leading_trailing_whitespace_count > 0 && (
+                                                  <span className="profile-stat"><span className="badge badge-warning">Leading/trailing whitespace</span> {formatCount(column.text.leading_trailing_whitespace_count)} values</span>
+                                                )}
+                                                {column.text.normalized_distinct_count !== undefined && column.text.normalized_distinct_count !== column.distinct_count && (
+                                                  <span className="profile-stat"><span className="profile-stat-label">distinct after normalization</span> {formatCount(column.text.normalized_distinct_count)} of {formatCount(column.distinct_count)}</span>
+                                                )}
+                                                {Number(column.text.case_variant_groups ?? 0) > 0 && (
+                                                  <span className="profile-stat"><span className="badge badge-warning">Case variants</span> <span className="cell-sub">{(column.text.case_variant_examples || []).slice(0, 3).map((variants: string[]) => (variants || []).join(' / ')).join('; ')}</span></span>
+                                                )}
+                                                {column.unhashable_values && <span className="profile-stat"><span className="badge badge-warning">Unhashable values</span> <span className="cell-sub">counted as text (lists/dicts)</span></span>}
+                                              </div>
+                                            )}
                                           </div>
                                         )}
 
                                         {column.datetime && (
-                                          <div className="detail-line">
-                                            <strong>Datetime</strong>
-                                            <span>
-                                              {formatStat(column.datetime.min)}{' '}
-                                              to{' '}
-                                              {formatStat(column.datetime.max)}
-                                            </span>
+                                          <div className="profile-detail-block">
+                                            <strong>Datetime evidence</strong>
+
+                                            <div className="profile-stat-group">
+                                              <span className="profile-stat"><span className="profile-stat-label">date-like</span> {formatStat(column.datetime.date_like_count)} ({formatStat(column.datetime.date_like_percentage)}%)</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">format valid</span> {formatStat(column.datetime.format_valid_percentage)}%</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">min</span> {formatStat(column.datetime.min)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">max</span> {formatStat(column.datetime.max)}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">monotonic increasing</span> {column.datetime.monotonic_increasing ? 'yes' : 'no'}</span>
+                                              <span className="profile-stat"><span className="profile-stat-label">monotonic decreasing</span> {column.datetime.monotonic_decreasing ? 'yes' : 'no'}</span>
+                                              {column.datetime.detected_format && (
+                                                <span className="profile-stat"><span className="profile-stat-label">detected format</span> <span className="mono">{String(column.datetime.detected_format)}</span>{column.datetime.format_ambiguous && <> (ambiguous, confidence {formatStat(column.datetime.format_confidence_percentage)}%)</>}</span>
+                                              )}
+                                              {column.datetime.has_time_component !== undefined && (
+                                                <span className="profile-stat"><span className="profile-stat-label">has time component</span> {column.datetime.has_time_component ? 'yes' : 'no'}</span>
+                                              )}
+                                              {column.datetime.future_date_percentage !== undefined && (
+                                                <span className="profile-stat"><span className="profile-stat-label">future dates</span> {formatStat(column.datetime.future_date_percentage)}%</span>
+                                              )}
+                                              {column.datetime.span_days !== undefined && (
+                                                <span className="profile-stat"><span className="profile-stat-label">span</span> {formatCount(column.datetime.span_days)} days, {formatCount(column.datetime.distinct_dates)} distinct dates</span>
+                                              )}
+                                              {column.datetime.null_or_unparseable_count !== undefined && (
+                                                <span className="profile-stat"><span className="profile-stat-label">null or unparseable</span> {formatCount(column.datetime.null_or_unparseable_count)}</span>
+                                              )}
+                                            </div>
                                           </div>
                                         )}
 
-                                        {!column.numeric &&
-                                          !column.text &&
-                                          !column.datetime && (
-                                            <span className="cell-sub">—</span>
-                                          )}
+                                        {column.categorical && (
+                                          <div className="profile-detail-block">
+                                            <strong>Categorical</strong>
+
+                                            <div className="profile-stat-group">
+                                              <span className="profile-stat"><span className="profile-stat-label">category count</span> {formatStat(column.categorical.category_count)}</span>
+                                              {(column.categorical.top_values || []).slice(0, 5).map((topValue: any) => (
+                                                <span className="profile-stat" key={String(topValue.value)}>
+                                                  <span className="profile-stat-label">{String(topValue.value)}</span> {formatStat(topValue.count)} ({formatStat(topValue.percentage)}%)
+                                                </span>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
                                   ))}
@@ -1925,8 +2371,132 @@ function App() {
                 </div>
               </>
             )}
+
+            {profilingReady && (
+              <div className="card-footer">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => goToStage(4)}
+                >
+                  Move to Semantic Understanding →
+                </button>
+              </div>
+            )}
           </section>
         </main>
+      )}
+
+      {/* =========================================================
+          STAGE 05 — SEMANTIC UNDERSTANDING
+          ========================================================= */}
+      {currentStage === 4 && contextData && (
+        <SemanticStage
+          key={`semantic-${contextData.dataset_id}`}
+          datasetId={contextData.dataset_id}
+          onStageComplete={() => {
+            void loadStageProgress(contextData.dataset_id)
+            goToStage(5)
+          }}
+        />
+      )}
+
+      {/* =========================================================
+          STAGE 06 — RELATIONSHIP DISCOVERY
+          ========================================================= */}
+      {currentStage === 5 && contextData && (
+        <RelationshipsStage
+          key={`relationships-${contextData.dataset_id}`}
+          datasetId={contextData.dataset_id}
+          onStageComplete={() => {
+            void loadStageProgress(contextData.dataset_id)
+            goToStage(6)
+          }}
+        />
+      )}
+
+      {/* =========================================================
+          STAGES 07 — METRIC & RULE RECOMMENDATION + VALIDATION
+          ========================================================= */}
+      {currentStage === 6 && contextData && (
+        <RulesStage
+          key={`rules-${contextData.dataset_id}`}
+          datasetId={contextData.dataset_id}
+          onStageComplete={() => {
+            void loadStageProgress(contextData.dataset_id)
+            goToStage(7)
+          }}
+        />
+      )}
+
+      {/* =========================================================
+          STAGE 08 — AUTHORITATIVE EXECUTION
+          ========================================================= */}
+      {currentStage === 7 && contextData && (
+        <ExecutionStage
+          key={`execution-${contextData.dataset_id}`}
+          datasetId={contextData.dataset_id}
+          onStageComplete={() => {
+            void loadStageProgress(contextData.dataset_id)
+            goToStage(8)
+          }}
+        />
+      )}
+
+      {/* =========================================================
+          STAGE 09 — SCORING & RCA
+          ========================================================= */}
+      {currentStage === 8 && contextData && (
+        <ScoringStage
+          key={`scoring-${contextData.dataset_id}`}
+          datasetId={contextData.dataset_id}
+          onStageComplete={() => {
+            void loadStageProgress(contextData.dataset_id)
+            goToStage(9)
+          }}
+        />
+      )}
+
+      {/* =========================================================
+          STAGE 10 — REMEDIATION & REASSESSMENT
+          ========================================================= */}
+      {currentStage === 9 && contextData && (
+        <RemediationStage
+          key={`remediation-${contextData.dataset_id}`}
+          datasetId={contextData.dataset_id}
+          onStageComplete={() => {
+            void loadStageProgress(contextData.dataset_id)
+            goToStage(10)
+          }}
+        />
+      )}
+
+      {/* =========================================================
+          STAGE 11 — MONITORING
+          ========================================================= */}
+      {currentStage === 10 && contextData && (
+        <MonitoringStage
+          key={`monitoring-${contextData.dataset_id}`}
+          datasetId={contextData.dataset_id}
+          onStageComplete={() => {
+            void loadStageProgress(contextData.dataset_id)
+            goToStage(11)
+          }}
+        />
+      )}
+
+      {/* =========================================================
+          STAGE 12 — FEEDBACK & OFFLINE LEARNING
+          ========================================================= */}
+      {currentStage === 11 && contextData && (
+        <FeedbackStage
+          key={`feedback-${contextData.dataset_id}`}
+          datasetId={contextData.dataset_id}
+          onStageComplete={() => {
+            void loadStageProgress(contextData.dataset_id)
+            goToStage(0)
+          }}
+        />
       )}
     </div>
   )
