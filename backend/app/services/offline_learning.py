@@ -29,8 +29,22 @@ FEATURE_ORDER = [
 
 
 def _features_to_vector(features: dict) -> list[float]:
-    return [float(features.get(name, 0.0) or 0.0) for name in FEATURE_ORDER]
+    """Convert persisted evidence payload into the training feature vector."""
+    vector: list[float] = []
 
+    for name in FEATURE_ORDER:
+        evidence = features.get(name, {})
+        if isinstance(evidence, dict):
+            value = evidence.get("value", 0.0)
+        else:
+            value = evidence
+
+        try:
+            vector.append(float(value or 0.0))
+        except (TypeError, ValueError):
+            vector.append(0.0)
+
+    return vector
 
 def _concept_name(db: Session, concept_id: int | None) -> str | None:
     if concept_id is None:
@@ -89,7 +103,29 @@ def build_training_examples(db: Session) -> list[dict]:
         if label is None:
             continue
 
-        vector = _features_to_vector(item.features_json)
+        candidates = item.features_json
+
+        if isinstance(candidates, list):
+            candidate = next(
+                (
+                    entry
+                    for entry in candidates
+                    if isinstance(entry, dict)
+                    and entry.get("concept_id") == predicted_concept_id
+                ),
+                None,
+            )
+
+            if candidate is None:
+                continue
+
+            features = candidate.get("evidence", {})
+        elif isinstance(candidates, dict):
+            features = candidates
+        else:
+            continue
+
+        vector = _features_to_vector(features)
 
         if all(value == 0.0 for value in vector):
             continue

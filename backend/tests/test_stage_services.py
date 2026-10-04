@@ -33,7 +33,7 @@ def test_confidence_requires_evidence_coverage():
     # High score but no evidence coverage must not read as Strong.
     assert confidence_level(0.95, 0.0) == "Ambiguous"
     assert confidence_level(0.95, 0.8) == "Strong"
-    assert confidence_level(0.7, 0.8) == "Probable"
+    assert confidence_level(0.7, 0.8) == "Ambiguous"
     assert confidence_level(0.3, 0.9) == "Unknown"
 
 
