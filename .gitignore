@@ -47,3 +47,52 @@ Thumbs.db
 
 # Local test fixtures
 backend/test_customers*.csv
+
+# Generated project artifacts
+artifacts/
+*.zip
+
+# Temporary / copied workspaces
+.freebuff/
+share/
+frontend - Copy/
+frontend - Copy (2)/
+frontend - Copy (3)/
+models - Copy/
+semantic-experiments/
+
+# Local test / scratch files
+dup_test.csv
+semantics_tricky_live.csv
+
+# Temporary audit / profiling output
+app_diff.txt
+baseline_tests.txt
+profiling_code.txt
+backend/audit_*.json
+backend/audit_*.py
+backend/debug_*.py
+backend/inspect_*.py
+backend/probe_*.py
+backend/profiling_*.json
+backend/profiling_*.txt
+backend/stage03_*.json
+
+# Large downloaded reference-data archives
+reference_data/geo/geonames/*.zip
+
+# Local application databases
+backend/data/*.db
+backend/data/*.sqlite
+backend/data/*.sqlite3
+backend/data/*backup*
+
+# Local uploaded datasets and runtime data
+data/
+
+# But keep project reference/evaluation files if explicitly staged
+!backend/data/semantic_eval/
+!backend/data/semantic_eval/**
+# One-off semantic / relationship experiments
+relationship_detection_experiment_*.py
+semantic_*.py

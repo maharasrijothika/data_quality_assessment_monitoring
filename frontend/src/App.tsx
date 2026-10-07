@@ -99,150 +99,6 @@ type UploadAnalysis = {
   }>
 }
 
-// Profile block shapes (Stage 04). Backend emits these keys;
-// the frontend reads the new canonical names.
-export interface ProfileTable {
-  table_id: number
-  table_name: string
-  source_file: string
-  row_count: number | null
-  columns: Array<{
-    column_id: number
-    column_name: string
-    data_type: string
-    identifier_signal?: boolean
-    identifier_name_signal?: boolean
-    identifier_uniqueness_percentage?: number | string
-    identifier_completeness_percentage?: number | string
-    identifier_like?: boolean
-    identifier_like_reasons?: string[]
-    identifier_repeats?: boolean
-    numeric: {
-      min?: number | string
-      max?: number | string
-      mean?: number | string
-      median?: number | string
-      std?: number | string
-      q25?: number | string
-      q50?: number | string
-      q75?: number | string
-      iqr?: number | string
-      mad?: number | string
-      count?: number | string
-      integer_valued?: boolean
-      code_like?: boolean
-      meaningful_statistics?: boolean
-      stored_as?: string
-      constant?: boolean
-      near_constant?: boolean
-      top_value_share_percentage?: number | string
-      zero_count?: number | string
-      negative_count?: number | string
-      positive_count?: number | string
-      integer_sequence?: {
-        counter_like?: boolean
-        dense?: boolean
-        step_one?: boolean
-        low_cardinality?: boolean
-      }
-      leading_zero_loss_suspected?: boolean
-      leading_zero_loss_count?: number | string
-      digit_length_distribution?: Record<string, number | string>
-      suspicious_sentinel?: {
-        value: number | string
-        percentage: number | string
-      } | null
-    }
-    text?: {
-      shape?: {
-        dominant_shape?: string | null
-        dominant_coverage_percentage?: number | string
-        top_shapes?: Array<{ shape: string; percentage: number | string }>
-        is_regular?: boolean
-        suggested_regex?: string | null
-        skipped_reason?: string | null
-        length_min?: number | string
-        length_max?: number | string
-        constant_length?: boolean
-      }
-      patterns?: {
-        email_like?: number | string
-        numeric_like?: number | string
-        date_like?: number | string
-        postal_like?: number | string
-        alphanumeric_like?: number | string
-        contains_special_character?: number | string
-        contains_whitespace?: number | string
-      }
-      constant?: boolean
-      near_constant?: boolean
-      top_value_share_percentage?: number | string
-      case_variant_groups?: number | string
-      case_variant_examples?: string[][]
-      disguised_missing_count?: number
-      disguised_missing_values?: unknown[]
-      disguised_missing_percentage?: number | string
-      leading_trailing_whitespace_count?: number
-      normalized_distinct_count?: number | string
-      min_length?: number | string
-      max_length?: number | string
-      mean_length?: number | string
-      median_length?: number | string
-    }
-    datetime?: {
-      date_like_count?: number
-      date_like_percentage?: number | string
-      format_valid_percentage?: number | string
-      detected_format?: string | null
-      format_ambiguous?: boolean
-      format_confidence_percentage?: number | string
-      min?: number | string
-      max?: number | string
-      monotonic_increasing?: boolean
-      monotonic_decreasing?: boolean
-      has_time_component?: boolean
-      future_date_percentage?: number | string
-      span_days?: number | string
-      distinct_dates?: number | string
-      null_or_unparseable_count?: number | string
-    }
-    categorical?: {
-      category_count?: number | string
-      top_values?: Array<{ value: string; count: number | string; percentage: number | string }>
-    }
-  }>
-  row_completeness?: {
-    fully_complete_rows?: number | string
-    fully_complete_percentage?: number | string
-    rows_with_any_null?: number | string
-    average_filled_percentage_per_row?: number | string
-    emptiest_row_filled_percentage?: number | string
-    co_missing_patterns?: Array<{
-      columns: string[]
-      row_count: number | string
-    }>
-    row_count?: number | string
-    sampled?: boolean
-    sample_rows?: number | string
-  }
-  functional_dependencies?: {
-    dependencies?: Array<{
-      determinant: string
-      dependent: string
-      coverage_percentage?: number | string
-      bidirectional?: boolean
-      sampled?: boolean
-    }>
-  }
-  observations?: Array<{
-    severity?: string
-    code?: string
-    column?: string | null
-    message?: string
-    evidence?: Record<string, unknown>
-  }>
-}
-
 type ContextData = {
   dataset_id: number
   dataset_name: string
@@ -438,6 +294,8 @@ function App() {
   const [loadingDatasets, setLoadingDatasets] = useState(false)
   const [datasetsError, setDatasetsError] = useState('')
   const [datasetFilter, setDatasetFilter] = useState('')
+  const [datasetToDelete, setDatasetToDelete] = useState<DatasetSummary | null>(null)
+  const [deletingDataset, setDeletingDataset] = useState(false)
   const [stageProgress, setStageProgress] = useState<StageProgress | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -498,6 +356,43 @@ function App() {
       setLoadingDatasets(false)
     }
   }, [])
+
+  const requestDeleteDataset = (datasetId: number) => {
+    const dataset = datasets.find(
+      (item) => item.dataset_id === datasetId,
+    )
+
+    if (dataset) {
+      setDatasetToDelete(dataset)
+    }
+  }
+
+  const deleteDataset = async () => {
+    if (!datasetToDelete) return
+
+    const datasetId = datasetToDelete.dataset_id
+    setDeletingDataset(true)
+    setDatasetsError('')
+
+    try {
+      await apiFetch(`/datasets/${datasetId}`, {
+        method: 'DELETE',
+      })
+
+      if (contextData?.dataset_id === datasetId) {
+        setContextData(null)
+      }
+
+      setDatasetToDelete(null)
+      await loadDatasets()
+    } catch (err) {
+      console.error('Dataset deletion failed:', err)
+      setDatasetsError(apiErrorMessage(err))
+    } finally {
+      setDeletingDataset(false)
+    }
+  }
+
 
   const loadStageProgress = useCallback(async (datasetId: number) => {
     try {
@@ -1335,9 +1230,19 @@ function App() {
 
                 {/* All uploaded files are duplicates */}
                 {uploadAnalysis?.status === 'all_duplicates' && (
-                  <Notice tone="danger" title="All uploaded files already exist">
-                    <p className="notice-text">{uploadAnalysis.message}</p>
-
+                  <Notice
+                     tone="danger"
+                        title={
+                          uploadAnalysis.duplicate_files.length === 1
+                            ? 'File already registered'
+                            : 'All uploaded files already exist'
+                      }
+                    >
+                    <p className="notice-text">
+                      {uploadAnalysis.duplicate_files.length === 1
+                        ? `The uploaded file "${uploadAnalysis.duplicate_files[0].filename}" has already been registered.`
+                        : uploadAnalysis.message}
+                    </p>
                     <ul className="notice-list">
                       {uploadAnalysis.duplicate_files.map((item) => {
                         const existing = item.existing_files?.[0]
@@ -1463,24 +1368,36 @@ function App() {
 
                     return (
                       <li key={dataset.dataset_id}>
-                        <button
-                          type="button"
-                          className={`dataset-item${isActive ? ' is-active' : ''}`}
-                          aria-current={isActive ? 'true' : undefined}
-                          onClick={() => void openDataset(dataset.dataset_id)}
-                        >
-                          <span className="dataset-item-main">
-                            <span className="dataset-item-name">
-                              {dataset.dataset_name}
+                        <div className="dataset-item-row">
+                          <button
+                            type="button"
+                            className={`dataset-item${isActive ? ' is-active' : ''}`}
+                            aria-current={isActive ? 'true' : undefined}
+                            onClick={() => void openDataset(dataset.dataset_id)}
+                          >
+                            <span className="dataset-item-main">
+                              <span className="dataset-item-name">
+                                {dataset.dataset_name}
+                              </span>
+
+                              <span className="dataset-item-meta">
+                                {describeDataset(dataset)}
+                              </span>
                             </span>
 
-                            <span className="dataset-item-meta">
-                              {describeDataset(dataset)}
-                            </span>
-                          </span>
+                            <IconChevron />
+                          </button>
 
-                          <IconChevron />
-                        </button>
+                          <button
+                            type="button"
+                            className="dataset-delete-button"
+                            aria-label={`Delete ${dataset.dataset_name}`}
+                            title={`Delete ${dataset.dataset_name}`}
+                            onClick={() => requestDeleteDataset(dataset.dataset_id)}
+                          >
+                            🗑
+                          </button>
+                        </div>
                       </li>
                     )
                   })}
@@ -2024,39 +1941,12 @@ function App() {
                                     <span className="profile-stat" key={pattern.columns.join('|')}>
                                       <span className="profile-evidence-strong">Co-missing</span>{' '}
                                       <span>{pattern.columns.join(' + ')}</span>{' '}
-                                      {formatCount(pattern.row_count)} rows
+                                      {formatCount(pattern.rows)} rows
                                     </span>
                                   ))}
                                   {table.row_completeness.sampled && (
                                     <span className="cell-sub">(sampled: {formatCount(table.row_completeness.sample_rows)} rows)</span>
                                   )}
-                                </div>
-                              )}
-                              {(table.observations || []).length > 0 && (
-                                <div className="profile-evidence profile-key-findings">
-                                  <span className="profile-evidence-strong">Key findings</span>
-                                  {[...table.observations]
-                                    .sort(
-                                      (first: any, second: any) =>
-                                        (first.severity === 'warning' ? 0 : 1) -
-                                        (second.severity === 'warning' ? 0 : 1),
-                                    )
-                                    .map((observation: any, observationIndex: number) => (
-                                      <span
-                                        className="profile-stat"
-                                        key={`${observation.code}-${observation.column ?? 'table'}-${observationIndex}`}
-                                      >
-                                        <span
-                                          className={`badge ${observation.severity === 'warning' ? 'badge-warning' : 'badge-accent'}`}
-                                        >
-                                          {observation.severity === 'warning' ? 'Warning' : 'Info'}
-                                        </span>{' '}
-                                        {observation.column && (
-                                          <span className="mono">{observation.column}: </span>
-                                        )}
-                                        <span>{observation.message}</span>
-                                      </span>
-                                    ))}
                                 </div>
                               )}
                               {table.functional_dependencies && (table.functional_dependencies.dependencies || []).length > 0 && (
@@ -2222,7 +2112,7 @@ function App() {
                                                 <span className="profile-stat"><span className="profile-stat-label">skewness</span> {formatStat(column.numeric.skewness)}</span>
                                               )}
                                               {column.numeric.suspicious_sentinel && (
-                                                <span className="profile-stat"><span className="badge badge-warning">Suspicious sentinel values</span> <span className="cell-sub">e.g. {formatStat(column.numeric.suspicious_sentinel?.value)} ({formatStat(column.numeric.suspicious_sentinel?.percentage)}% of rows)</span></span>
+                                                <span className="profile-stat"><span className="badge badge-warning">Suspicious sentinel values</span> <span className="cell-sub">e.g. {formatStat(column.numeric.suspicious_sentinel?.value)}</span></span>
                                               )}
                                               {column.numeric.code_like && (
                                                 <span className="profile-stat"><span className="badge badge-accent">Code-like numeric</span> <span className="cell-sub">stored as {formatStat(column.stored_as ?? column.numeric.stored_as ?? '—')}, semantic type mismatch</span></span>
@@ -2231,7 +2121,7 @@ function App() {
                                                 <span className="profile-stat"><span className="badge badge-warning">Leading zeros lost</span> <span className="cell-sub">{formatStat(column.numeric.leading_zero_loss_count ?? 0)} values ({formatStat(column.numeric.leading_zero_loss_percentage ?? 0)}%)</span></span>
                                               )}
                                               {column.numeric.digit_length_distribution && Object.keys(column.numeric.digit_length_distribution).length > 0 && (
-                                                <span className="profile-stat profile-digit-lengths"><span className="profile-stat-label">digit lengths</span> {Object.entries(column.numeric.digit_length_distribution).map(([digitLength, count]) => <span key={digitLength} className="profile-dep-chips">{digitLength}: {formatStat(count as number | string)}</span>)}</span>
+                                                <span className="profile-stat profile-digit-lengths"><span className="profile-stat-label">digit lengths</span> {Object.entries(column.numeric.digit_length_distribution).map(([length, count]) => <span key={length} className="profile-dep-chips">{length}: {formatStat(count)}</span>)}</span>
                                               )}
                                             </div>
                                           </div>
@@ -2278,9 +2168,9 @@ function App() {
                                                   <span className="profile-stat"><span className="profile-stat-label">format</span> <span className="mono">{String(column.datetime.detected_format)}</span></span>
                                                 ) : (
                                                   <>
-                                                    <span className="profile-stat"><span className="profile-stat-label">dominant shape</span> <span className="mono">{formatStat(column.text.shape.dominant_shape)}</span> ({formatStat(column.text.shape.dominant_coverage_percentage)}% coverage{column.text.shape.is_regular ? ', regular' : ''})</span>
+                                                    <span className="profile-stat"><span className="profile-stat-label">dominant shape</span> <span className="mono">{formatStat(column.text.shape.dominant_display_shape ?? column.text.shape.dominant_shape)}</span> ({formatStat(column.text.shape.dominant_coverage_percentage)}% coverage{column.text.shape.is_regular ? ', regular' : ''})</span>
                                                     {(column.text.shape.top_shapes || []).length > 1 && (
-                                                      <span className="profile-stat profile-shapes"><span className="profile-stat-label">top shapes</span> {(column.text.shape.top_shapes || []).map((shape: any) => <span key={shape.shape} className="profile-dep-chips"><span className="mono">{shape.shape}</span> {formatStat(shape.percentage)}%</span>)}</span>
+                                                      <span className="profile-stat profile-shapes"><span className="profile-stat-label">top shapes</span> {(column.text.shape.top_shapes || []).map((shape: any) => <span key={shape.shape} className="profile-dep-chips"><span className="mono">{shape.display_shape ?? shape.shape}</span> {formatStat(shape.percentage)}%</span>)}</span>
                                                     )}
                                                     {column.text.shape.suggested_regex && <span className="profile-stat"><span className="profile-stat-label">suggested regex</span> <span className="mono">{String(column.text.shape.suggested_regex)}</span></span>}
                                                     {column.text.shape.skipped_reason && <span className="profile-stat cell-sub">shapes skipped: {formatStat(column.text.shape.skipped_reason)}</span>}
@@ -2293,7 +2183,7 @@ function App() {
                                                 <span className="profile-stat"><span className="profile-stat-label">separators</span> {formatStat(column.text.separators.summary)}</span>
                                               </div>
                                             )}
-                                            {(column.text.disguised_missing_count > 0 || column.text.leading_trailing_whitespace_count > 0 || column.unhashable_values || (column.text.case_variant_groups || []).length > 0 || column.text.normalized_distinct_count !== undefined) && (
+                                            {(column.text.disguised_missing_count > 0 || column.text.leading_trailing_whitespace_count > 0 || column.unhashable_values || (typeof column.text.case_variant_groups === 'number' && column.text.case_variant_groups > 0) || column.text.normalized_distinct_count !== undefined) && (
                                               <div className="profile-stat-group" style={{ marginTop: 6 }}>
                                                 {column.text.disguised_missing_count > 0 && (
                                                   <span className="profile-stat"><span className="badge badge-warning">Disguised missing</span> <span className="cell-sub">{formatCount(column.text.disguised_missing_count)} values ({formatStat(column.text.disguised_missing_percentage ?? 0)}%){(column.text.disguised_missing_values || []).length > 0 && <>: {(column.text.disguised_missing_values || []).map((value: any) => `"${String(value)}"`).join(', ')}</>}</span></span>
@@ -2304,8 +2194,8 @@ function App() {
                                                 {column.text.normalized_distinct_count !== undefined && column.text.normalized_distinct_count !== column.distinct_count && (
                                                   <span className="profile-stat"><span className="profile-stat-label">distinct after normalization</span> {formatCount(column.text.normalized_distinct_count)} of {formatCount(column.distinct_count)}</span>
                                                 )}
-                                                {Number(column.text.case_variant_groups ?? 0) > 0 && (
-                                                  <span className="profile-stat"><span className="badge badge-warning">Case variants</span> <span className="cell-sub">{(column.text.case_variant_examples || []).slice(0, 3).map((variants: string[]) => (variants || []).join(' / ')).join('; ')}</span></span>
+                                                {typeof column.text.case_variant_groups === 'number' && column.text.case_variant_groups > 0 && (
+                                                  <span className="profile-stat"><span className="badge badge-warning">Case variants</span> <span className="cell-sub">{formatCount(column.text.case_variant_groups)} group(s)</span></span>
                                                 )}
                                                 {column.unhashable_values && <span className="profile-stat"><span className="badge badge-warning">Unhashable values</span> <span className="cell-sub">counted as text (lists/dicts)</span></span>}
                                               </div>
@@ -2498,8 +2388,67 @@ function App() {
           }}
         />
       )}
+            {datasetToDelete && (
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !deletingDataset) {
+              setDatasetToDelete(null)
+            }
+          }}
+        >
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-dataset-title"
+            aria-describedby="delete-dataset-description"
+          >
+            <div className="modal-header">
+              <h2 id="delete-dataset-title">Delete dataset?</h2>
+            </div>
+
+            <div className="modal-body">
+              <p className="modal-dataset-name">
+                {datasetToDelete.dataset_name}
+              </p>
+
+              <p
+                id="delete-dataset-description"
+                className="modal-description"
+              >
+                This will remove the dataset from Registered Datasets.
+                Its versions, lineage, and raw files will be preserved.
+              </p>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                disabled={deletingDataset}
+                onClick={() => setDatasetToDelete(null)}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-danger"
+                disabled={deletingDataset}
+                onClick={() => void deleteDataset()}
+              >
+                {deletingDataset ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
+
 
 export default App

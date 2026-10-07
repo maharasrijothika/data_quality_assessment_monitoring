@@ -26,6 +26,10 @@ export async function apiFetch<T>(
     throw new ApiError(response.status, data?.detail ?? response.statusText)
   }
 
+  if (response.status === 204) {
+    return undefined as T
+  }
+
   return (await response.json()) as T
 }
 

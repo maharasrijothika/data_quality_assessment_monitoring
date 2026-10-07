@@ -194,9 +194,10 @@ def get_registered_datasets(
     db: Session = Depends(get_db),
 ):
     datasets = (
-        db.query(Dataset)
-        .order_by(Dataset.dataset_id.desc())
-        .all()
+    db.query(Dataset)
+    .filter(Dataset.deleted_at.is_(None))
+    .order_by(Dataset.dataset_id.desc())
+    .all()
     )
 
     response = []

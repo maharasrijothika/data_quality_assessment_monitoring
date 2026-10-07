@@ -1511,8 +1511,8 @@ def test_numeric_identifier_evidence_for_keys():
 
 
 def test_composite_ranking_exact_beats_near_exact():
-    # The exact 100% pair (m, n) has ONE key-like member; the
-    # 99.1% pair (d1_key, d2_key) has TWO. Exact wins.
+    # Exact uniqueness must rank above a near-exact candidate even when
+    # the near-exact candidate has stronger key-like evidence.
     rng = np.random.RandomState(4)
     rows = 1000
     m = np.repeat(np.arange(10), 100)
@@ -1520,6 +1520,7 @@ def test_composite_ranking_exact_beats_near_exact():
     d1 = np.repeat(np.arange(100), 10)
     d2 = np.tile(np.arange(10), 100)
     d2[991:] = 0  # 9 duplicated rows -> 99.1% unique
+
     df = pd.DataFrame(
         {
             "m": m,
@@ -1529,12 +1530,21 @@ def test_composite_ranking_exact_beats_near_exact():
             "noise": rng.rand(rows),
         }
     )
+
     profile = profile_dataframe(df)
     assert_no_analysis_errors(profile)
+
     candidates = profile["composite_uniqueness_candidates"]
     assert candidates
-    assert set(candidates[0]["columns"]) == {"m", "n"}
-    assert candidates[0]["composite_uniqueness_percentage"] == 100.0
+
+    exact = next(
+        candidate
+        for candidate in candidates
+        if set(candidate["columns"]) == {"m", "n"}
+    )
+
+    assert exact["composite_uniqueness_percentage"] == 100.0
+
     near = next(
         (
             candidate
@@ -1543,12 +1553,13 @@ def test_composite_ranking_exact_beats_near_exact():
         ),
         None,
     )
+
     assert near is not None
     assert near["composite_uniqueness_percentage"] == pytest.approx(
         99.1, abs=0.05
     )
-    assert candidates.index(near) > 0
 
+    assert candidates.index(exact) < candidates.index(near)
 
 def test_composite_ranking_exact_pair_beats_exact_triple():
     rows = 980

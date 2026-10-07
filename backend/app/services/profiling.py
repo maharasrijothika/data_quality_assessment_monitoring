@@ -113,22 +113,60 @@ def _combined_date_shape_regex() -> str:
     return "|".join(f"(?:{r})" for r in regexes)
 
 
-IDENTIFIER_NAME_TOKENS = (
-    "id", "identifier", "uuid", "guid", "key", "keys", "fk", "pk", "code",
-    "number", "no", "ref", "reference", "sku", "serial",
+IDENTIFIER_STRONG_NAME_TOKENS = (
+    "id",
+    "identifier",
+    "uuid",
+    "guid",
+    "key",
+    "keys",
+    "fk",
+    "pk",
+    "ref",
+    "reference",
+    "sku",
+    "serial",
 )
 
-
+IDENTIFIER_WEAK_NAME_TOKENS = (
+    "code",
+    "number",
+    "no",
+)
 def _column_name_tokens(name: Any) -> list[str]:
     """Lowercase word tokens of a column name (snake, kebab, camelCase)."""
     text = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", str(name))
     return [t.lower() for t in _TOKEN_SPLIT_RE.split(text) if t]
 
 
-def identifier_name_signal_from_name(name: Any) -> bool:
-    """Token-aware identifier name evidence (deterministic, no ML)."""
-    return any(t in IDENTIFIER_NAME_TOKENS for t in _column_name_tokens(name))
+def identifier_name_evidence_from_name(name: Any) -> dict[str, Any]:
+    tokens = _column_name_tokens(name)
 
+    strong_matches = [
+        token for token in tokens
+        if token in IDENTIFIER_STRONG_NAME_TOKENS
+    ]
+
+    weak_matches = [
+        token for token in tokens
+        if token in IDENTIFIER_WEAK_NAME_TOKENS
+    ]
+
+    return {
+        "strong": bool(strong_matches),
+        "weak": bool(weak_matches),
+        "strong_matches": strong_matches,
+        "weak_matches": weak_matches,
+    }
+def identifier_name_signal_from_name(name: Any) -> bool:
+    """
+    Return whether the column name contains an identifier-related token.
+
+    This is name evidence only. It does not mean the column is actually
+    an identifier.
+    """
+    evidence = identifier_name_evidence_from_name(name)
+    return bool(evidence["strong"] or evidence["weak"])
 
 def _column_name_has_token(name: Any, tokens: Sequence[str]) -> bool:
     return any(t in tokens for t in _column_name_tokens(name))
@@ -247,12 +285,33 @@ def _pattern_summary(
         stripped.str.fullmatch(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", na=False)
     )
     digits = stripped.str.replace(r"\D", "", regex=True)
-    phone_shape = stripped.str.fullmatch(r"\+?[0-9][0-9\s().-]{5,}", na=False)
-    patterns["phone_like"] = total(digits.str.len().between(7, 15) & phone_shape.fillna(False))
-    patterns["postal_like"] = total(stripped.str.fullmatch(_COMBINED_POSTAL_REGEX, na=False))
-    patterns["currency_like"] = total(stripped.str.fullmatch(r"[A-Z]{3}", na=False))
-    patterns["numeric_like"] = total(stripped.str.fullmatch(r"[-+]?\d+(\.\d+)?", na=False))
-    patterns["date_like"] = total(stripped.str.fullmatch(_combined_date_shape_regex(), na=False))
+
+    date_mask = stripped.str.fullmatch(
+        _combined_date_shape_regex(),
+        na=False,
+    ).fillna(False)
+
+    phone_shape = stripped.str.fullmatch(
+        r"\+?[0-9][0-9\s().-]{5,}",
+        na=False,
+    ).fillna(False)
+
+    patterns["phone_like"] = total(
+        digits.str.len().between(7, 15)
+        & phone_shape
+        & ~date_mask
+    )
+
+    patterns["postal_like"] = total(
+        stripped.str.fullmatch(_COMBINED_POSTAL_REGEX, na=False)
+    )
+    patterns["currency_like"] = total(
+        stripped.str.fullmatch(r"[A-Z]{3}", na=False)
+    )
+    patterns["numeric_like"] = total(
+        stripped.str.fullmatch(r"[-+]?\d+(\.\d+)?", na=False)
+    )
+    patterns["date_like"] = total(date_mask)
     patterns["alphanumeric_like"] = total(stripped.str.fullmatch(r"[A-Za-z0-9]+", na=False))
     patterns["contains_whitespace"] = total(values.str.contains(r"\s", regex=True, na=False))
     patterns["contains_special_character"] = total(
@@ -830,14 +889,11 @@ def _identifier_like_text(text_block: dict[str, Any], shape: dict[str, Any],
         reasons.append("unique_with_name_signal")
     if name_signal:
         reasons.append("name_signal")
-    if not reasons and shape and not shape.get("skipped_reason") and shape.get("is_regular"):
-        dominant = shape.get("dominant_shape") or ""
-        spread = 0
-        if shape.get("length_min") is not None and shape.get("length_max") is not None:
-            spread = int(shape["length_max"]) - int(shape["length_min"])
-        if "9" in dominant and (shape.get("constant_length") or spread <= PROFILING_IDENTIFIER_MAX_LENGTH_RANGE):
-            reasons.append("regular_shape_with_digit")
-    elif reasons and shape and shape.get("is_regular") and not shape.get("skipped_reason"):
+    # Shape is profiling evidence, not identifier evidence. A regular
+    # digit-containing shape can describe dates, phone numbers, postal codes,
+    # discounts, counters, or arbitrary formatted values. Therefore shape
+    # alone must never make a column identifier-like.
+    if reasons and shape and shape.get("is_regular") and not shape.get("skipped_reason"):
         reasons.append("regular_shape")
     return bool(reasons), reasons
 
@@ -931,8 +987,16 @@ def _composite_uniqueness_candidates(
     eligible: dict[str, int] = {}
     for column, distinct in column_distinct.items():
         info = meta.get(column, {})
-        if info.get("is_constant") or info.get("is_float_measure") or info.get("is_free_text"):
+        if (
+            info.get("is_constant")
+            or info.get("is_float_measure")
+            or info.get("is_free_text")
+        ):
             continue
+
+        # Composite candidates should be structurally meaningful:
+        # key-like fields, categorical dimensions, or temporal dimensions.
+
         non_null = column_non_null.get(column, 0)
         if distinct < 2 or non_null == 0 or distinct / non_null >= unique_bar:
             continue
@@ -944,9 +1008,13 @@ def _composite_uniqueness_candidates(
         codes[column], sizes[column] = _factorize(work[column])
 
     def priority(combo: tuple[str, ...]) -> tuple[int, int]:
-        like = sum(1 for c in combo if meta.get(c, {}).get("is_key_like"))
-        return (-like, math.prod(eligible[c] for c in combo))
-
+        distinct_product = math.prod(eligible[c] for c in combo)
+        like = sum(
+            1
+            for c in combo
+            if meta.get(c, {}).get("is_key_like")
+        )
+        return (distinct_product, -like)
     candidates: list[dict[str, Any]] = []
     unique_subsets: set[frozenset[str]] = set()
     evaluated = 0
@@ -981,9 +1049,13 @@ def _composite_uniqueness_candidates(
                 "composite_uniqueness_percentage": _clean_value(pct),
                 "duplicate_composite_rows": int(counts[counts > 1].sum()),
                 "duplicate_composite_excess_count": int(non_null - distinct_count),
+                "distinct_product": int(math.prod(eligible[c] for c in combo)),
                 "key_like_members": [meta.get(c, {}).get("report_name", c) for c in combo
                                      if meta.get(c, {}).get("is_key_like")],
-                "contains_measure": False,
+                "contains_measure": any(
+                    meta.get(column, {}).get("is_float_measure", False)
+                    for column in combo
+                ),
                 "near_exact": bool(pct >= PROFILING_COMPOSITE_NEAR_EXACT_THRESHOLD),
             }
             if sampled:
@@ -993,18 +1065,23 @@ def _composite_uniqueness_candidates(
     return _rank_composite_candidates(candidates)
 
 
-def _rank_composite_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Near-exact first, then fewer columns, more key-like members, higher uniqueness."""
+def _rank_composite_candidates(
+    candidates: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Rank composite uniqueness candidates by structural quality."""
     ranked = sorted(
         candidates,
         key=lambda e: (
-            not e["near_exact"], len(e["columns"]), -len(e.get("key_like_members", [])),
-            -e["composite_uniqueness_percentage"], -e["composite_distinct_count"],
-        ),
+            -e["composite_uniqueness_percentage"],
+            len(e["columns"]),
+            -len(e.get("key_like_members", [])),
+            -e["composite_distinct_count"],
+            e.get("distinct_product", float("inf")),
+            tuple(e["columns"]),
+
+        )
     )
     return ranked[:PROFILING_MAX_COMBINATIONS]
-
-
 # ---------------------------------------------------------------------------
 # Row completeness
 # ---------------------------------------------------------------------------
@@ -1101,6 +1178,10 @@ def _functional_dependencies(
     ratio: dict[str, float] = {}
     for column, info in column_meta.items():
         distinct, non_null = column_distinct.get(column, 0), column_non_null.get(column, 0)
+
+        if column.startswith("Unnamed:"):
+            continue
+
         if info.get("is_constant") or info.get("is_free_text") or info.get("is_float_measure"):
             continue
         if non_null == 0 or distinct < 2:
@@ -1128,6 +1209,9 @@ def _functional_dependencies(
 
     entries: list[dict[str, Any]] = []
     for (a_col, b_col), (coverage, groups, rows, evaluated) in found.items():
+        if evaluated < 30:
+            continue
+
         reverse = found.get((b_col, a_col))
         entries.append({
             "determinant": a_col, "dependent": b_col,
@@ -1187,6 +1271,79 @@ def _observations(columns: list[dict[str, Any]], table: dict[str, Any]) -> list[
     """Deterministic, evidence-carrying observations from computed numbers."""
     out: list[dict[str, Any]] = []
 
+    column_meta = {
+        column["column_name"]: {
+            "is_float_measure": bool(
+                (column.get("numeric") or {}).get("integer_valued") is False
+                and not (column.get("numeric") or {}).get("constant", False)
+            ),
+            "is_free_text": bool(
+                isinstance(
+                    (column.get("text") or {}).get("mean_length"),
+                    (int, float),
+                )
+                and (column.get("text") or {}).get("mean_length")
+                > PROFILING_SHAPE_MAX_MEAN_LENGTH
+            ),
+            "is_datetime": bool(column.get("datetime")),
+            "is_categorical": bool(column.get("categorical")),
+            "is_key_like": bool(
+                column.get("identifier_like")
+                or (column.get("numeric") or {}).get("code_like")
+            ),
+        }
+        for column in columns
+    }
+
+    def _meaningful_composite_candidate(
+        candidate: dict[str, Any],
+    ) -> bool:
+        members = candidate.get("columns", [])
+
+        if len(members) < 2:
+            return False
+
+        metadata = [
+            column_meta.get(column, {})
+            for column in members
+        ]
+
+        # Never surface combinations containing free-text columns.
+        if any(
+            meta.get("is_free_text", False)
+            for meta in metadata
+        ):
+            return False
+
+        # Strongest evidence: at least one identifier/key-like member.
+        if candidate.get("key_like_members"):
+            return True
+
+        # A valid temporal grain needs a time dimension AND
+        # another structural dimension. Date + date is not enough.
+        has_datetime = any(
+            meta.get("is_datetime", False)
+            for meta in metadata
+        )
+
+        has_non_datetime_dimension = any(
+            not meta.get("is_datetime", False)
+            and meta.get("is_categorical", False)
+            for meta in metadata
+        )
+
+        if has_datetime and has_non_datetime_dimension:
+            # Do not surface temporal combinations dominated by measures.
+            if any(
+                meta.get("is_float_measure", False)
+                for meta in metadata
+            ):
+                return False
+
+            return True
+
+        return False
+
     def add(severity: str, code: str, column: str | None, message: str, evidence: dict[str, Any]) -> None:
         out.append({"severity": severity, "code": code, "column": column,
                     "message": message, "evidence": evidence})
@@ -1199,11 +1356,32 @@ def _observations(columns: list[dict[str, Any]], table: dict[str, Any]) -> list[
             {"pairs_with_violations": violated})
     composites = table.get("composite_uniqueness_candidates", [])
     if composites:
-        best = composites[0]
-        add("info", "best_composite_key", None,
-            f"{' + '.join(best['columns'])}: {best['composite_uniqueness_percentage']:.3f}% unique composite",
-            {"columns": best["columns"], "composite_uniqueness_percentage": best["composite_uniqueness_percentage"],
-             "near_exact": best.get("near_exact", False)})
+        best = next(
+            (
+                candidate
+                for candidate in composites
+                if _meaningful_composite_candidate(candidate)
+            ),
+            None,
+        )
+
+        if best:
+            add(
+                "info",
+                "composite_uniqueness_candidate",
+                None,
+                f"{' + '.join(best['columns'])}: "
+                f"{best['composite_uniqueness_percentage']:.3f}% "
+                "unique composite",
+                {
+                    "columns": best["columns"],
+                    "composite_uniqueness_percentage": (
+                        best["composite_uniqueness_percentage"]
+                    ),
+                    "near_exact": best.get("near_exact", False),
+                    "requires_business_confirmation": True,
+                },
+            )
     if table.get("complete_duplicate_rows"):
         add("warning", "duplicate_rows", None, f"{table['complete_duplicate_rows']} complete duplicate rows",
             {"complete_duplicate_rows": table["complete_duplicate_rows"],
@@ -1230,9 +1408,13 @@ def _observations(columns: list[dict[str, Any]], table: dict[str, Any]) -> list[
                 {"detected_format": dt.get("detected_format"),
                  "format_confidence_percentage": dt.get("format_confidence_percentage")})
         if numeric.get("constant") or text.get("constant"):
-            values = (col.get("categorical") or {}).get("top_values") or []
-            add("info", "constant_column", name, f"{name}: every non-null value is identical",
-                {"value": values[0].get("value") if values else numeric.get("min")})
+            add(
+                "info",
+                "constant_column",
+                name,
+                f"{name}: every non-null value is identical",
+                {"value": col.get("representative_value")},
+            )
         near = numeric.get("near_constant") or text.get("near_constant")
         if near:
             share = numeric.get("top_value_share_percentage") if numeric.get("near_constant") \
@@ -1285,11 +1467,7 @@ def _observations(columns: list[dict[str, Any]], table: dict[str, Any]) -> list[
                      "dominant_display_shape": shape.get("dominant_display_shape"),
                      "dominant_coverage_percentage": shape.get("dominant_coverage_percentage"),
                      "suggested_regex": shape.get("suggested_regex")})
-            elif col.get("identifier_like"):
-                add("warning", "irregular_pattern", name,
-                    f"{name}: identifier-like column is irregular (dominant shape covers {shape.get('dominant_coverage_percentage', 0):.1f}%)",
-                    {"dominant_shape": shape.get("dominant_shape"),
-                     "dominant_coverage_percentage": shape.get("dominant_coverage_percentage")})
+
 
     sampled_blocks = [
         {"column": c["column_name"], "analysis": block, "sample_rows": (c.get(block) or {}).get("sample_rows")}
@@ -1336,7 +1514,9 @@ def profile_dataframe(dataframe: pd.DataFrame, table_name: str | None = None) ->
         non_null_count = int(series.notna().sum())
         duplicate_count = int(value_counts[value_counts > 1].sum()) if value_counts is not None and not value_counts.empty else 0
         distinct_pct = distinct_count / non_null_count * 100 if non_null_count else 0.0
-        name_signal = identifier_name_signal_from_name(column)
+        name_evidence = identifier_name_evidence_from_name(column)
+        name_signal = bool(name_evidence["strong"])
+        weak_name_signal = bool(name_evidence["weak"])
         identifier_signal = bool(non_null_count > 0 and distinct_count == non_null_count and name_signal)
 
         profile: dict[str, Any] = {
@@ -1353,11 +1533,13 @@ def profile_dataframe(dataframe: pd.DataFrame, table_name: str | None = None) ->
             "distinct_percentage": _clean_value(distinct_pct),
             "duplicate_count": duplicate_count,
             "duplicate_excess_count": int(non_null_count - distinct_count) if duplicate_count else 0,
-            "identifier_name_signal": name_signal,
+            "identifier_name_signal": bool(name_signal or weak_name_signal),
             "identifier_completeness_percentage": _clean_value(non_null_count / row_count * 100 if row_count else 0.0),
             "identifier_uniqueness_percentage": _clean_value(distinct_pct),
             "identifier_signal": identifier_signal,
         }
+        if distinct_count <= 1 and value_counts is not None and not value_counts.empty:
+            profile["representative_value"] = _clean_value(value_counts.index[0])
         if unhashable:
             profile["unhashable_values"] = True
 
@@ -1375,10 +1557,20 @@ def profile_dataframe(dataframe: pd.DataFrame, table_name: str | None = None) ->
                 numeric_block.update(_leading_zero_profile(clean, code_like))
                 is_integer = bool(numeric_block.get("integer_valued"))
                 is_const = bool(numeric_block.get("constant"))
-                id_like = bool(is_integer and not is_const
-                               and (name_signal or sequence.get("counter_like")))
-                reasons = ([] if not id_like else
-                           (["name_signal"] if name_signal else []) + (["counter_like"] if sequence.get("counter_like") else []))
+                counter_like = bool(sequence.get("counter_like"))
+
+                id_like = bool(
+                    is_integer
+                    and not is_const
+                    and name_signal
+                )
+
+                reasons = []
+                if id_like:
+                    reasons.append("name_signal")
+
+                if sequence.get("counter_like"):
+                    reasons.append("counter_like")
                 profile["identifier_like"] = id_like
                 profile["identifier_like_reasons"] = reasons
                 profile["identifier_repeats"] = bool(id_like and distinct_pct < 100.0)
@@ -1468,12 +1660,23 @@ def profile_dataframe(dataframe: pd.DataFrame, table_name: str | None = None) ->
         is_float_measure = bool(numeric_block and not numeric_block.get("integer_valued", True) and not numeric_block.get("constant"))
         text_mean = (profile.get("text") or {}).get("mean_length")
         is_free_text = bool(isinstance(text_mean, (int, float)) and text_mean > PROFILING_SHAPE_MAX_MEAN_LENGTH)
-        is_key_like = bool(profile.get("identifier_like") or profile.get("datetime") is not None
-                           or numeric_block.get("code_like")
-                           or (0 < distinct_count <= PROFILING_LOW_CARDINALITY_MAX and not is_constant))
+        is_datetime = bool(
+            pd.api.types.is_datetime64_any_dtype(series)
+            or profile.get("datetime")
+        )
+        is_categorical = bool(profile.get("categorical"))
+        # Key-likeness is intentionally conservative. Datetime columns and
+        # arbitrary low-cardinality categories are not keys merely because
+        # they are unique-ish or structurally regular. They can participate
+        # in business rules, but they should not drive composite-key search.
+        # Identifier-like and explicit code-like evidence are sufficient.
+        is_key_like = bool(
+            profile.get("identifier_like")
+            or numeric_block.get("code_like")
+        )
         column_meta[unique_key] = {"report_name": name_key, "is_constant": is_constant,
                                    "is_float_measure": is_float_measure, "is_free_text": is_free_text,
-                                   "is_key_like": is_key_like}
+                                   "is_datetime": is_datetime, "is_categorical": is_categorical, "is_key_like": is_key_like}
         column_distinct[unique_key] = distinct_count
         column_non_null[unique_key] = non_null_count
         columns.append(profile)

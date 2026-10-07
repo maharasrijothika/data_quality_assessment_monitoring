@@ -22,6 +22,7 @@ from app.routers.rules import router as rules_router
 from app.routers.remediation import router as remediation_router
 from app.routers.monitoring import router as monitoring_router
 from app.routers.models import router as models_router
+from app.routers.datasets import router as datasets_router
 
 Base.metadata.create_all(bind=engine)
 ensure_sqlite_columns()
@@ -45,6 +46,7 @@ app.add_middleware(
 )
 
 app.include_router(upload_router)
+app.include_router(datasets_router)
 app.include_router(context_router)
 app.include_router(profiling_router)
 app.include_router(stages_router)
@@ -55,7 +57,6 @@ app.include_router(rules_router)
 app.include_router(remediation_router)
 app.include_router(monitoring_router)
 app.include_router(models_router)
-
 
 @app.get("/health")
 def health_check():

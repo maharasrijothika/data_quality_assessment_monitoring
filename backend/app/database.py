@@ -28,6 +28,9 @@ Base = declarative_base()
 # to tables that already exist; these nullable additions must be present on
 # upgrades too. Plain SQLite ALTER TABLE, checked via PRAGMA first.
 _REQUIRED_COLUMNS: dict[str, list[tuple[str, str]]] = {
+    "datasets": [
+        ("deleted_at", "DATETIME"),
+    ],
     "semantic_predictions": [
         ("user_defined_type", "TEXT"),
         ("decision_source", "TEXT"),
@@ -56,7 +59,8 @@ def ensure_sqlite_columns() -> None:
             existing = {
                 column["name"] for column in inspector.get_columns(table_name)
             }
-
+
+
             for column_name, column_type in columns:
                 if column_name not in existing:
                     connection.execute(
